@@ -27,6 +27,19 @@ Developed and delivered by [Akhil Kumar](https://github.com/kumaakh), CEO & Co-f
 
 ---
 
+## Recordings
+
+Both workshops were recorded live with ~20 developers attending each session. Full sessions — not highlights.
+
+| Workshop | Recording | Date | Attendees |
+|----------|-----------|------|-----------|
+| **Basic** (~2 hrs) | [![Basic workshop recording](https://img.youtube.com/vi/1CUNmxA4O1E/maxresdefault.jpg)](https://youtu.be/1CUNmxA4O1E?t=20) | 10 Feb 2026 | ~20 developers |
+| **Advanced** (~3 hrs) | [![Advanced workshop recording](https://img.youtube.com/vi/cDg0_0FTGE0/maxresdefault.jpg)](https://youtu.be/cDg0_0FTGE0) | 18 Feb 2026 | ~20 developers |
+
+Direct links: [Basic](https://youtu.be/1CUNmxA4O1E?t=20) · [Advanced](https://youtu.be/cDg0_0FTGE0)
+
+---
+
 ## Quick Start
 
 Clone the demo project used in both workshops:
