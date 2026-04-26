@@ -1,0 +1,2400 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  ENCODING SAFETY WARNING - DO NOT ADD RAW UNICODE CHARACTERS
+  ============================================================================
+
+  This file uses HTML entities instead of raw Unicode to prevent double-encoding
+  corruption (UTF-8 misinterpreted as Latin-1/Windows-1252).
+
+  PROHIBITED (raw Unicode):          USE INSTEAD (HTML entities):
+  BOX-DRAWING: use &#x250C; &#x2510; &#x2514; &#x2518; &#x2502; &#x2500; etc.
+  ARROWS: use &rarr; &larr; &uarr; &darr; &#x25B2; &#x25BC;
+  PUNCTUATION: use &mdash; &ndash; &bull; &times;
+  CHECK/CROSS: use &#x2713; &#x2717;
+  ============================================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agentic AI Workshop - Advanced</title>
+  <style>
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #f1f5f9;
+      --bg-card: #e2e8f0;
+      --text-primary: #1e293b;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --accent-green: #16a34a;
+      --accent-orange: #ea580c;
+      --accent-red: #dc2626;
+      --accent-blue: #2563eb;
+      --accent-purple: #9333ea;
+      --border-color: #cbd5e1;
+      --font-main: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'SF Mono', 'Fira Code', Consolas, monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* Responsive root: scales with viewport height so slides fill the screen.
+       1080px → 26px (PDF export baseline)
+       1440px → 34.6px (2560×1440 monitor)
+       Capped at 36px to prevent oversized text on 4K+ */
+    html { font-size: clamp(26px, 2.4vh, 36px); }
+    body {
+      font-family: var(--font-main);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.4;
+      overflow: hidden;
+    }
+
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      padding: 20px 35px 65px 35px;
+      display: none;
+      flex-direction: column;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e8f4f8 100%);
+      overflow: hidden;
+      position: relative;
+    }
+    .slide.active { display: flex; }
+
+    .slide-header { flex-shrink: 0; margin-bottom: 12px; }
+
+    h1 { font-size: 3rem; font-weight: 700; margin-bottom: 0.3rem; }
+    h2 { font-size: 1.7rem; font-weight: 600; margin-bottom: 0.2rem; }
+    h3 { font-size: 1.15rem; font-weight: 600; color: var(--accent-blue); margin-bottom: 0.25rem; }
+
+    .subtitle { font-size: 1.1rem; color: var(--text-secondary); }
+    .time-badge {
+      display: inline-block;
+      background: var(--bg-card);
+      color: var(--text-muted);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 1rem;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+
+    p { margin-bottom: 0.35rem; color: var(--text-secondary); font-size: 1rem; }
+
+    .slide-content {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5vw; /* minimum 5% relief between columns */
+      min-height: 0;
+    }
+
+    .slide-content.centered {
+      grid-template-columns: 1fr;
+      text-align: center;
+      align-items: center;
+      justify-items: center;
+    }
+
+    .slide-content.three-col {
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+    }
+
+    .slide-left, .slide-right, .slide-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .slide-image {
+      max-width: 100%;
+      max-height: 60vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 10px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 1.1rem; }
+    th, td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border-color); }
+    th { background: var(--bg-card); font-weight: 600; }
+    td { background: white; color: var(--text-secondary); }
+
+    /* Compact table variant for dense slides */
+    table.compact { font-size: 0.85rem; }
+    table.compact th, table.compact td { padding: 4px 8px; }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      line-height: 1.4;
+      overflow-x: auto;
+      white-space: pre;
+      display: inline-block;
+      align-self: flex-start;
+    }
+
+    pre.light-card {
+      background: #f8fafc;
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.8rem 1rem;
+      border-radius: 0 8px 8px 0;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      line-height: 1.4;
+      white-space: pre;
+      display: inline-block;
+      align-self: flex-start;
+    }
+    pre.light-card .hl-heading { color: var(--accent-blue); font-weight: 600; }
+    pre.light-card .hl-bracket { color: var(--text-muted); }
+
+    pre.light-status {
+      background: #f8fafc;
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      line-height: 1.4;
+      white-space: pre;
+      display: inline-block;
+      align-self: flex-start;
+    }
+    pre.light-status .sec-done { color: var(--accent-green); font-weight: 600; }
+    pre.light-status .sec-wip { color: var(--accent-orange); font-weight: 600; }
+    pre.light-status .sec-next { color: var(--accent-blue); font-weight: 600; }
+
+    .ascii-diagram {
+      background: #f8fafc;
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      line-height: 1.25;
+      white-space: pre;
+      overflow: hidden;
+      display: inline-block;
+      align-self: flex-start;
+    }
+
+    /* Styled diagram box — replaces broken ASCII box art */
+    .diagram-box {
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem 0.7rem;
+      background: white;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+    .diagram-box .box-title {
+      font-weight: 700;
+      font-size: 0.78rem;
+      margin-bottom: 0.2rem;
+    }
+    .diagram-box ul { margin: 0.1rem 0 0 0.8rem; font-size: 0.65rem; }
+    .diagram-box li { margin-bottom: 0.05rem; }
+    .diagram-arrow {
+      text-align: center;
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      padding: 0.15rem 0;
+    }
+    .diagram-arrow-label {
+      text-align: center;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .slide-refs {
+      position: absolute;
+      bottom: 0.3rem;
+      left: 35px;
+      right: 35px;
+      font-size: 0.5rem;
+      color: var(--text-muted);
+      border-top: 1px solid #e2e8f0;
+      padding-top: 0.15rem;
+    }
+    .slide-refs a { color: var(--accent-blue); font-size: 0.5rem; }
+
+    /* Lab call-to-action box — visually distinct from insight boxes */
+    .lab-box {
+      background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 40%, #dbeafe 100%);
+      border: 2px solid #818cf8;
+      border-radius: 12px;
+      padding: 0.45rem 0.7rem 0.45rem 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .lab-box::before {
+      content: '\1F9EA';
+      font-size: 1.6rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .lab-box .lab-num {
+      display: inline-block;
+      background: #6366f1;
+      color: white;
+      font-weight: 800;
+      font-size: 0.65rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 6px;
+      margin-right: 0.2rem;
+      letter-spacing: 0.03em;
+    }
+    .lab-box .lab-title {
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: #4338ca;
+    }
+    .lab-box .lab-tagline {
+      font-size: 0.65rem;
+      color: #6366f1;
+      margin-top: 0.1rem;
+    }
+
+    /* Show & Tell / Live Demo box — instructor-led, not hands-on */
+    .demo-box {
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 40%, #cffafe 100%);
+      border: 2px solid #34d399;
+      border-radius: 12px;
+      padding: 0.45rem 0.7rem 0.45rem 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .demo-box .demo-icon {
+      font-size: 1.6rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .demo-box .demo-badge {
+      display: inline-block;
+      background: #059669;
+      color: white;
+      font-weight: 800;
+      font-size: 0.65rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 6px;
+      margin-right: 0.2rem;
+      letter-spacing: 0.03em;
+    }
+    .demo-box .demo-title {
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: #065f46;
+    }
+    .demo-box .demo-tagline {
+      font-size: 0.65rem;
+      color: #059669;
+      margin-top: 0.1rem;
+    }
+    .demo-box .demo-links {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+    .demo-box .demo-links a {
+      color: #059669;
+      font-size: 0.65rem;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      background: var(--bg-card);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: var(--accent-blue);
+    }
+
+    .insight-box {
+      background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+      border: 2px solid var(--accent-green);
+      border-radius: 10px;
+      padding: 0.6rem 0.9rem;
+      margin: 0.5rem 0;
+      display: inline-block;
+      align-self: flex-start;
+    }
+    .insight-box p { color: var(--text-primary); margin: 0; font-size: 1rem; }
+    .insight-box.danger {
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+      border-color: var(--accent-red);
+    }
+    .insight-box.warning {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-color: var(--accent-orange);
+    }
+
+    blockquote {
+      border-left: 3px solid var(--accent-blue);
+      padding: 0.5rem 0.8rem;
+      background: var(--bg-secondary);
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: var(--text-secondary);
+      font-size: 1rem;
+      margin: 0.4rem 0;
+    }
+
+    .flow-box {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      display: inline-block;
+      align-self: flex-start;
+    }
+    .flow-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .flow-item {
+      background: white;
+      padding: 0.5rem 0.9rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .flow-item small { display: block; font-weight: 400; color: var(--text-muted); font-size: 1rem; }
+    .flow-arrow { color: var(--accent-green); font-size: 1.4rem; font-weight: bold; }
+    .flow-return { color: var(--accent-orange); font-size: 1rem; margin-top: 0.5rem; }
+
+    /* Journey marker for section tracking */
+    .journey-marker {
+      position: absolute;
+      top: 0.5rem;
+      right: 5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.15rem;
+      font-size: 0.55rem;
+      font-family: var(--font-mono);
+      opacity: 0.7;
+    }
+    .journey-marker .jm-item {
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      border: 1.5px solid #cbd5e1;
+      background: white;
+      color: #94a3b8;
+    }
+    .journey-marker .jm-item.active {
+      font-weight: 700;
+      border-width: 2px;
+    }
+    .journey-marker .jm-item.active-knowledge { border-color: var(--accent-blue); color: var(--accent-blue); background: #eff6ff; }
+    .journey-marker .jm-item.active-safety { border-color: var(--accent-red); color: var(--accent-red); background: #fef2f2; }
+    .journey-marker .jm-item.active-autonomy { border-color: var(--accent-purple); color: var(--accent-purple); background: #faf5ff; }
+    .journey-marker .jm-item.active-scale { border-color: var(--accent-green); color: var(--accent-green); background: #f0fdf4; }
+    .journey-marker .jm-sep { display: none; }
+
+    /* Guardrail hierarchy */
+    .guardrails-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 1.05rem;
+    }
+    .guardrails-list li {
+      padding: 0.35rem 0.5rem;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+    .guardrails-list li:nth-child(odd) { background: #f8fafc; }
+    .guardrails-list li:nth-child(even) { background: white; }
+    .guardrails-list .dot-red { color: var(--accent-red); font-size: 1.3rem; line-height: 1; }
+    .guardrails-list .dot-green { color: var(--accent-green); font-size: 1.3rem; line-height: 1; }
+    .guardrails-list .dot-blue { color: var(--accent-blue); font-size: 1.3rem; line-height: 1; }
+
+    .case-link {
+      color: var(--accent-blue);
+      text-decoration: none;
+      font-size: 1.1rem;
+      display: block;
+      margin: 0.2rem 0;
+    }
+    .case-link:hover { text-decoration: underline; }
+    a { color: var(--accent-blue); }
+
+    .equation {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      font-family: var(--font-mono);
+      margin: 0.4rem 0;
+    }
+
+    ul, ol { margin: 0.4rem 0 0.4rem 1.2rem; font-size: 1rem; color: var(--text-secondary); }
+    li { margin-bottom: 0.25rem; }
+
+    .big-emoji { font-size: 4rem; }
+    .big-number { font-size: 2rem; font-weight: 700; color: var(--accent-green); }
+
+    /* Checklist styling */
+    .checklist {
+      list-style: none;
+      padding: 0;
+      margin: 0.3rem 0;
+    }
+    .checklist li {
+      padding: 0.25rem 0.4rem;
+      font-size: 0.95rem;
+      color: var(--accent-green);
+      font-weight: 500;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .checklist li::before {
+      content: '\2713  ';
+      margin-right: 0.3rem;
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid var(--border-color);
+      padding: 10px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+    .nav-btn {
+      background: var(--accent-blue);
+      color: white;
+      border: none;
+      padding: 8px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: var(--font-main);
+    }
+    .nav-btn:hover { background: #1d4ed8; }
+    .nav-btn:disabled { background: var(--bg-card); color: var(--text-muted); cursor: not-allowed; }
+    .nav-btn.secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+    .nav-btn.secondary:hover { background: var(--bg-card); }
+
+    .nav-progress { display: flex; gap: 5px; }
+    .nav-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--border-color);
+      cursor: pointer;
+    }
+    .nav-dot.active { background: var(--accent-blue); transform: scale(1.3); }
+
+    .slide-number {
+      position: fixed;
+      top: 12px;
+      right: 20px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: var(--bg-secondary);
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+
+    .speaker-notes { display: none; }
+
+
+  </style>
+</head>
+<body>
+
+<!-- SLIDE 1: Six Principles You Took From the Basic Workshop -->
+<section class="slide active">
+  <div class="slide-header">
+    <h2>Six Principles You Took From the Basic Workshop <span class="time-badge">2 min</span></h2>
+    <p class="subtitle">Your foundation &mdash; and the launch point for everything today</p>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <table>
+        <tr><th>#</th><th>Principle</th><th>The One-Liner</th></tr>
+        <tr><td>1</td><td><strong>AI is the exponent</strong></td><td>Your skill is the base &mdash; AI amplifies what you already know</td></tr>
+        <tr><td>2</td><td><strong>Two loops</strong></td><td>The agent loops inside (code/test/fix). You loop outside (plan/verify/steer).</td></tr>
+        <tr><td>3</td><td><strong>Context is finite</strong></td><td>The LLM has no memory. Separate your concerns or drown in context.</td></tr>
+        <tr><td>4</td><td><strong>Four phases</strong></td><td>Onboard &rarr; Plan &rarr; Execute &rarr; Verify. Same loop, every feature.</td></tr>
+        <tr><td>5</td><td><strong>State survives sessions</strong></td><td>plan.md and progress.md outlast any context window</td></tr>
+        <tr><td>6</td><td><strong>Earn your autonomy</strong></td><td>Start supervised. Graduate to more freedom as trust builds.</td></tr>
+      </table>
+    </div>
+
+    <div class="slide-right">
+      <h3>Where You Are Now</h3>
+      <pre class="light-status" style="font-size: 0.9rem;"><span class="sec-done">&#x2713; Using AI tools regularly for real work</span>
+<span class="sec-done">&#x2713; Built your own CLAUDE.md / .cursorrules / project instructions</span>
+<span class="sec-done">&#x2713; Hit context overflow at least once</span>
+<span class="sec-done">&#x2713; Know when to /clear and when to push through</span>
+<span class="sec-done">&#x2713; Caught the agent cutting corners or making wrong assumptions</span></pre>
+
+      <blockquote style="margin-top: 0.8rem;">
+        &ldquo;How do I go from supervised assistance to the agent working while I sleep &mdash; and how do I do it safely?&rdquo;
+      </blockquote>
+
+      <div class="insight-box" style="margin-top: 0.6rem;">
+        <p><strong>This workshop answers that question.</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>Don&rsquo;t linger &mdash; the audience knows this. 2 minutes max.</li>
+      <li>Pulse check: &ldquo;Raise your hand if you&rsquo;ve had the agent ignore a failing test.&rdquo; (Most raise hand.)</li>
+      <li>The six principles are deliberately stated as the basic workshop&rsquo;s key messages &mdash; instant recognition.</li>
+      <li>Don&rsquo;t claim a specific multiplier &mdash; the audience has varying experiences. Acknowledge the range.</li>
+      <li><strong>Bridge:</strong> &ldquo;These principles are your foundation. But you&rsquo;ve also hit walls &mdash; let&rsquo;s talk about what&rsquo;s holding you back.&rdquo;</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 2: You've Hit Walls — Here's What's Holding You Back -->
+<section class="slide">
+  <div class="slide-header">
+    <h2>You&rsquo;ve Hit Walls &mdash; Here&rsquo;s What&rsquo;s Holding You Back <span class="time-badge">3 min</span></h2>
+    <p class="subtitle">You&rsquo;ve felt the speedup. What matters is you&rsquo;ve also hit walls.</p>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <table>
+        <tr><th>Wall</th><th>What It Feels Like</th></tr>
+        <tr><td><strong>You can only supervise one agent at a time</strong></td><td>Your attention is the bottleneck, not the agent&rsquo;s speed</td></tr>
+        <tr><td><strong>Context fills up in minutes, not hours</strong></td><td>Lost progress, repeated mistakes, inconsistent code</td></tr>
+        <tr><td><strong>You sleep, the agent stops</strong></td><td>8 hours of idle compute every night</td></tr>
+        <tr><td><strong>Mistakes repeat across sessions</strong></td><td>Same struggle, different day</td></tr>
+        <tr><td><strong>Every new session rediscovers domain knowledge</strong></td><td>20 min of discovery before 5 min of actual work</td></tr>
+      </table>
+
+      <div class="insight-box warning" style="margin-top: 0.8rem;">
+        <p><strong>The data confirms this:</strong> Anthropic&rsquo;s 2026 Agentic Coding Trends Report finds that engineers can &ldquo;fully delegate&rdquo; only 0&ndash;20% of tasks. 80&ndash;100% still require active oversight.</p>
+        <p style="margin-top:0.3rem;">You&rsquo;re not doing it wrong &mdash; you&rsquo;ve hit the ceiling of supervised, single-agent work.</p>
+      </div>
+    </div>
+
+    <div class="slide-right">
+      <h3>The Rest of This Workshop &mdash; Four Sections</h3>
+      <p style="margin-bottom: 0.6rem;">Each section breaks a wall you&rsquo;ve hit.</p>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+        <div style="background: #eff6ff; border: 2px solid var(--accent-blue); border-radius: 10px; padding: 0.7rem; text-align: center;">
+          <div style="font-weight: 700; color: var(--accent-blue); font-size: 1.1rem;">KNOWLEDGE</div>
+          <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.3rem;">Memory that outlasts any session</div>
+          <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.2rem;">slides 3&ndash;6</div>
+        </div>
+        <div style="background: #fef2f2; border: 2px solid var(--accent-red); border-radius: 10px; padding: 0.7rem; text-align: center;">
+          <div style="font-weight: 700; color: var(--accent-red); font-size: 1.1rem;">SAFETY</div>
+          <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.3rem;">Architecture that makes watching optional</div>
+          <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.2rem;">slides 7&ndash;10</div>
+        </div>
+        <div style="background: #faf5ff; border: 2px solid var(--accent-purple); border-radius: 10px; padding: 0.7rem; text-align: center;">
+          <div style="font-weight: 700; color: var(--accent-purple); font-size: 1.1rem;">AUTONOMY</div>
+          <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.3rem;">Agent works while you sleep</div>
+          <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.2rem;">slides 11&ndash;15</div>
+        </div>
+        <div style="background: #f0fdf4; border: 2px solid var(--accent-green); border-radius: 10px; padding: 0.7rem; text-align: center;">
+          <div style="font-weight: 700; color: var(--accent-green); font-size: 1.1rem;">SCALE</div>
+          <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.3rem;">Multiple agents in parallel</div>
+          <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.2rem;">slide 16</div>
+        </div>
+      </div>
+      <p style="margin-top: 0.6rem; font-weight: 500;">By the end, you&rsquo;ll know how to set up all four.</p>
+    </div>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>Ask the room: &ldquo;What&rsquo;s the biggest wall you&rsquo;ve hit?&rdquo; &mdash; let them share frustrations</li>
+      <li>Don&rsquo;t debate multipliers &mdash; focus on the walls, which are universal regardless of how much speedup they&rsquo;re getting</li>
+      <li>The 0&ndash;20% delegation stat validates their experience without claiming a specific multiplier</li>
+      <li>The rest of the workshop breaks through each wall: knowledge (slides 3&ndash;6), safety (7&ndash;10), autonomy (11&ndash;15), scale (16)</li>
+      <li><strong>Bridge:</strong> &ldquo;The first wall to break is context. Anthropic now has a name for how to do it &mdash; and it&rsquo;s not prompt engineering anymore.&rdquo;</li>
+      <li>Reference: <a href="https://resources.anthropic.com/hubfs/2026%20Agentic%20Coding%20Trends%20Report.pdf">2026 Agentic Coding Trends Report</a></li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 3: Context Engineering -->
+<section class="slide">
+  <div class="journey-marker">
+    <span class="jm-item active active-knowledge">&#x25B8; Knowledge</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Safety</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Autonomy</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Scale</span>
+  </div>
+
+  <div class="slide-header">
+    <h2>It&rsquo;s Not Prompt Engineering Anymore &mdash; It&rsquo;s Context Engineering <span class="time-badge">5 min</span></h2>
+    <p class="subtitle">The question isn&rsquo;t &ldquo;what should I type?&rdquo; &mdash; it&rsquo;s &ldquo;what configuration of context is most likely to generate the desired behavior?&rdquo;</p>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <h3>The Four Strategies</h3>
+      <table class="compact">
+        <tr><th>Strategy</th><th>What It Means</th><th>Example</th></tr>
+        <tr><td><strong>Write</strong></td><td>Save context outside the window</td><td>progress.md, LEARNINGS.md, commits</td></tr>
+        <tr><td><strong>Select</strong></td><td>Pull context in just-in-time</td><td>Agent uses grep/glob to find what it needs</td></tr>
+        <tr><td><strong>Compress</strong></td><td>Summarize older conversation</td><td>Auto-compaction at ~95% capacity</td></tr>
+        <tr><td><strong>Isolate</strong></td><td>Split work across separate contexts</td><td>Subagents, agent teams, separate sessions</td></tr>
+      </table>
+
+      <h3 style="margin-top: 0.6rem;">The Agent Moves in Minutes &mdash; Context Can&rsquo;t Keep Up</h3>
+      <div class="ascii-diagram" style="font-size: 0.72rem; line-height: 1.5;">
+ 0 min:  <span style="color:#4ade80;">[Fresh context &#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;]</span>  Agent onboards
+10 min:  <span style="color:#facc15;">[Half full &#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;]</span>  First feature done
+20 min:  <span style="color:#f97316;">[Filling fast &#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2591;&#x2591;&#x2591;&#x2591;]</span>  Second feature
+30 min:  <span style="color:#ef4444;">[Context full &#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;]</span>  Compaction triggers
+40 min:  <span style="color:#ef4444;">[&#x2717; Earlier decisions fading &mdash; inconsistent code]</span></div>
+
+      <div class="insight-box danger" style="margin-top: 0.5rem;">
+        <p><strong>Context rot:</strong> Every additional token degrades the model&rsquo;s attention budget, reducing recall accuracy &mdash; even before you hit the limit.</p>
+      </div>
+    </div>
+
+    <div class="slide-right">
+      <h3>Ephemeral vs. Persistent</h3>
+      <div style="border: 2px solid var(--accent-orange); border-radius: 10px; padding: 0.6rem 0.8rem; background: #fff7ed; margin-bottom: 0.5rem;">
+        <div style="font-weight: 700; color: var(--accent-orange); font-size: 0.9rem; margin-bottom: 0.3rem;">EPHEMERAL (context window)</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);">Current task + recent conversation</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted);">Dies on /clear, overflow, or session end</div>
+      </div>
+      <div style="text-align: center; font-size: 1.5rem; color: var(--text-muted);">&#x2195; load on demand</div>
+      <div style="border: 2px solid var(--accent-green); border-radius: 10px; padding: 0.6rem 0.8rem; background: #f0fdf4;">
+        <div style="font-weight: 700; color: var(--accent-green); font-size: 0.9rem; margin-bottom: 0.3rem;">PERSISTENT (survives sessions)</div>
+        <ul style="font-size: 0.8rem; margin: 0.2rem 0 0 1rem; color: var(--text-secondary);">
+          <li>Project instructions (CLAUDE.md)</li>
+          <li>Auto-memory (Claude&rsquo;s own notes)</li>
+          <li>Path-scoped rules (.claude/rules/)</li>
+          <li>Skills (.claude/skills/)</li>
+          <li>progress.md, plan.md</li>
+        </ul>
+      </div>
+
+      <div class="insight-box" style="margin-top: 0.6rem;">
+        <p><strong>The Goldilocks Rule:</strong> Instructions should be specific enough to guide behavior but flexible enough to serve as heuristics &mdash; not rigid logic trees or vague goals.</p>
+      </div>
+
+      <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.4rem;">Context management is your #1 scaling constraint.</p>
+    </div>
+  </div>
+
+  <div class="slide-refs">
+    <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective Context Engineering for AI Agents (Anthropic)</a>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>&ldquo;Context engineering&rdquo; is Anthropic&rsquo;s official term now &mdash; use it</li>
+      <li>The four strategies (Write/Select/Compress/Isolate) are the framework for the next 2 slides (slides 4&ndash;5)</li>
+      <li><strong>Context rot</strong> is a powerful concept &mdash; quality degrades before you hit the limit</li>
+      <li>Reference: <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective Context Engineering for AI Agents</a></li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 4: Six Layers of Memory -->
+<section class="slide">
+  <div class="journey-marker">
+    <span class="jm-item active active-knowledge">&#x25B8; Knowledge</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Safety</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Autonomy</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Scale</span>
+  </div>
+
+  <div class="slide-header">
+    <h2>Your Agent Has Six Layers of Memory &mdash; You&rsquo;re Probably Using Two <span class="time-badge">7 min</span></h2>
+    <p class="subtitle">Most people think of CLAUDE.md as &ldquo;the&rdquo; project instructions file. But there&rsquo;s now a 6-level hierarchy.</p>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <table class="compact" style="font-size: 0.72rem;">
+        <tr><th>Level</th><th>Location</th><th>Scope</th><th>Example</th></tr>
+        <tr><td>Managed policy</td><td>System-level CLAUDE.md</td><td>Org-wide (IT-deployed)</td><td>&ldquo;All code must pass SAST&rdquo;</td></tr>
+        <tr style="background:#eff6ff;"><td><strong>Project memory</strong></td><td><code>./CLAUDE.md</code></td><td>Team (committed to git)</td><td>Build commands, patterns</td></tr>
+        <tr style="background:#eff6ff;"><td><strong>Path-scoped rules</strong></td><td><code>.claude/rules/*.md</code></td><td>Files matching glob</td><td>&ldquo;API files use Result&lt;T&gt;&rdquo;</td></tr>
+        <tr style="background:#eff6ff;"><td><strong>User memory</strong></td><td><code>~/.claude/CLAUDE.md</code></td><td>Personal (all projects)</td><td>&ldquo;I prefer concise responses&rdquo;</td></tr>
+        <tr style="background:#eff6ff;"><td><strong>Local memory</strong></td><td><code>./CLAUDE.local.md</code></td><td>Personal + project (gitignored)</td><td>&ldquo;My test DB is on port 5433&rdquo;</td></tr>
+        <tr style="background:#eff6ff;"><td><strong>Auto-memory</strong></td><td><code>~/.claude/projects/&lt;p&gt;/memory/</code></td><td>Auto-generated per project</td><td>Claude&rsquo;s own session notes</td></tr>
+      </table>
+      <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.25rem;">Managed policy: Teams/Enterprise only. <strong>The 5 layers you control are where the leverage is.</strong></p>
+
+      <h3 style="margin-top: 0.6rem; font-size: 0.85rem;">Three Features Most People Miss</h3>
+      <div style="font-size: 0.78rem; color: var(--text-secondary);">
+        <p style="margin-bottom: 0.3rem;"><strong>1. Path-Scoped Rules</strong> &mdash; YAML frontmatter with file globs in <code>.claude/rules/*.md</code>. Rules only fire when Claude touches matching files &mdash; zero noise for everything else. <span style="color:var(--accent-blue);">(Lab 1)</span></p>
+
+        <p style="margin-bottom: 0.3rem;"><strong>2. Auto-Memory</strong> &mdash; Claude saves its own notes to <code>~/.claude/projects/&lt;project&gt;/memory/</code>. Next session, it already knows. Claude Code only &mdash; won&rsquo;t carry over to Cursor/Copilot. <span style="color:var(--accent-blue);">(Lab 1)</span></p>
+
+        <p><strong>3. CLAUDE.md Imports</strong> &mdash; use <code>@path/to/file.md</code> in CLAUDE.md to include other files. Keep the root file short, split rules into focused modules.</p>
+      </div>
+    </div>
+
+    <div class="slide-right">
+      <h3 style="font-size: 0.9rem;">The Learning Extraction Habit</h3>
+      <p style="font-size: 0.82rem; margin-bottom: 0.4rem;">After every struggle, ask Claude: <em>&ldquo;What addition to CLAUDE.md would have prevented this?&rdquo;</em> Every struggle becomes a future shortcut. <span style="color:var(--accent-blue);">(Lab 1)</span></p>
+
+      <table class="compact" style="font-size: 0.72rem;">
+        <tr><th>Type</th><th>Goes In</th><th>Example</th></tr>
+        <tr><td>Permanent project rules</td><td>CLAUDE.md</td><td>&ldquo;Use bash not sh&rdquo;</td></tr>
+        <tr><td>File-specific rules</td><td>.claude/rules/</td><td>&ldquo;API files use Result&lt;T&gt;&rdquo;</td></tr>
+        <tr><td>One-time discoveries</td><td>LEARNINGS.md</td><td>&ldquo;Redis trailing slash breaks&rdquo;</td></tr>
+        <tr><td>Domain expertise (reusable)</td><td>Skills (next slide)</td><td>Bitbucket API patterns</td></tr>
+      </table>
+
+      <!-- Compounds naturally from extraction — no separate heading needed -->
+      <div style="margin-top: 0.5rem; padding: 0.5rem 0.7rem; background: linear-gradient(90deg, #f0fdf4 0%, #f8fafc 100%); border-left: 3px solid var(--accent-green); border-radius: 0 8px 8px 0;">
+        <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6;">
+          <div>Session 1: You struggle with <strong>10 things</strong></div>
+          <div>Session 5: You struggle with <strong>3 things</strong></div>
+          <div>Session 20: <strong style="color:var(--accent-green);">Project-native pair programmer</strong></div>
+        </div>
+      </div>
+
+      <p style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--text-secondary); line-height: 1.5;">
+        <strong>Keep it working:</strong> CLAUDE.md should be concise (long files dilute attention). Use hooks for deterministic actions, linters for formatting. Check it into git &mdash; it compounds over time.
+      </p>
+
+      <div class="lab-box" style="margin-top: 0.5rem;">
+        <div>
+          <div class="lab-title"><span class="lab-num">LAB 1</span> Let&rsquo;s try: An Agent That Never Forgets</div>
+          <div class="lab-tagline">Total recall &mdash; watch Claude remember across sessions like it actually paid attention.</div>
+        </div>
+      </div>
+
+      <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.4rem; border-top: 1px solid var(--border-color); padding-top: 0.2rem;">
+        <strong>In Other Tools:</strong> Copilot &rarr; <code>.github/copilot-instructions.md</code> &nbsp;|&nbsp; Cursor &rarr; <code>.cursorrules</code> or <code>.cursor/rules/</code> &nbsp;|&nbsp; Windsurf &rarr; <code>.windsurfrules</code>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-refs">
+    <a href="https://code.claude.com/docs/en/memory">Manage Claude&rsquo;s Memory</a> &nbsp;|&nbsp;
+    <a href="https://code.claude.com/docs/en/claude-md">CLAUDE.md Docs</a>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>Show your own CLAUDE.md and explain what each line cost you to learn</li>
+      <li>Demo auto-memory: &ldquo;remember that we use pnpm&rdquo;</li>
+      <li>Path-scoped rules reduce noise significantly in large monorepos &mdash; rules only fire on matching files</li>
+      <li>Ask: &ldquo;How many of you have hit the same issue twice in different sessions?&rdquo; &mdash; this slide is the fix</li>
+      <li>Reference: <a href="https://code.claude.com/docs/en/memory">Manage Claude&rsquo;s Memory</a></li>
+      <li><strong>In Other Tools detail:</strong> GitHub Copilot CLI uses <code>.github/copilot-instructions.md</code> (no path-scoped rules or auto-memory as of Feb 2026). Cursor has <code>.cursorrules</code> or <code>.cursor/rules/</code> with path-glob-scoped rules. Windsurf has <code>.windsurfrules</code> with a different memory feature.</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 5: Skills Are an Open Standard Now -->
+<section class="slide">
+  <div class="journey-marker">
+    <span class="jm-item active active-knowledge">&#x25B8; Knowledge</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Safety</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Autonomy</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Scale</span>
+  </div>
+
+  <div class="slide-header">
+    <h2>Skills Are an Open Standard Now &mdash; Build Once, Use Everywhere <span class="time-badge">8 min</span></h2>
+    <p class="subtitle">Every domain-specific task the agent rediscovers from scratch eats context and doesn&rsquo;t persist. Skills fix that.</p>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <h3 style="font-size: 0.85rem;">Skills Are Now Industry-Wide</h3>
+      <p style="font-size: 0.75rem;">Published specification at <a href="https://agentskills.io/specification" style="color: var(--accent-blue);">agentskills.io</a>, governed by <strong>AAIF</strong> (Linux Foundation). Multiple tools adopting the same SKILL.md format:</p>
+
+      <table class="compact" style="font-size: 0.68rem; margin-top: 0.3rem;">
+        <tr><th>Tool</th><th>Skills Location</th><th>Status (Feb 2026)</th><th>Verified</th></tr>
+        <tr><td><strong>Claude Code</strong></td><td><code>.claude/skills/*/SKILL.md</code></td><td>Full support</td><td>&#x2713; Docs</td></tr>
+        <tr><td><strong>GitHub Copilot</strong></td><td><code>.github/skills/*/SKILL.md</code></td><td>Supported</td><td>&#x2713; GitHub Docs</td></tr>
+        <tr><td><strong>OpenAI Codex</strong></td><td><code>.codex/skills/</code></td><td>Claimed</td><td style="color:var(--accent-orange);">Not verified</td></tr>
+        <tr><td><strong>Cursor</strong></td><td><code>.cursor/skills/</code></td><td>Claimed</td><td style="color:var(--accent-orange);">Not verified</td></tr>
+        <tr><td><strong>Windsurf</strong></td><td>via integration</td><td>Claimed</td><td style="color:var(--accent-orange);">Not verified</td></tr>
+      </table>
+      <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem;">Progressive disclosure: only name + description load at startup; full body loads on invocation.</p>
+
+      <h3 style="font-size: 0.85rem; margin-top: 0.5rem;">The Subagent Pattern</h3>
+      <div class="diagram-box" style="border-color: var(--accent-blue); border-left: 4px solid var(--accent-blue);">
+        <div class="box-title" style="color: var(--accent-blue);">MAIN AGENT</div>
+        <div style="font-size: 0.65rem;">Focus: Feature development</div>
+        <div style="font-size: 0.65rem; color: var(--text-muted); font-style: italic;">&ldquo;Spin up a subagent with devops skill to watch the build and report back&rdquo;</div>
+      </div>
+      <div class="diagram-arrow">&darr;</div>
+      <div class="diagram-arrow-label">parallel subagents (~10 concurrent before queuing)</div>
+      <div class="diagram-box" style="border-color: var(--accent-green); border-left: 4px solid var(--accent-green);">
+        <div class="box-title" style="color: var(--accent-green);">SUBAGENT (background)</div>
+        <div style="font-size: 0.65rem;">Skill: bitbucket-devops</div>
+        <div style="font-size: 0.65rem;">Context: DevOps knowledge only &mdash; no feature bloat</div>
+        <div style="font-size: 0.65rem;">Returns: <strong style="color:var(--accent-green);">condensed summary (1&ndash;2K tokens)</strong> to parent</div>
+      </div>
+    </div>
+
+    <div class="slide-right">
+      <h3 style="font-size: 0.85rem;">Real Example: Apra Labs Bitbucket DevOps Skill</h3>
+      <p style="font-size: 0.75rem;"><strong>Problem:</strong> Bitbucket API nuances had to be rediscovered every session.</p>
+      <p style="font-size: 0.75rem;"><strong>Solution:</strong> <a href="https://github.com/Apra-Labs/claude-bitbucket-devops-skill">Apra Labs bitbucket-devops skill</a></p>
+      <p style="font-size: 0.75rem;">Spin up a <strong>subagent</strong> with this skill. It watches the build in the background. Your main agent stays focused on the feature.</p>
+
+      <h3 style="font-size: 0.85rem; margin-top: 0.5rem;">When to Create a Skill</h3>
+      <table class="compact" style="font-size: 0.68rem;">
+        <tr><th>Signal</th><th>Action</th></tr>
+        <tr><td>Same discovery conversation 3+ times</td><td>Extract to skill</td></tr>
+        <tr><td>Complex domain agent doesn&rsquo;t know natively</td><td>Build skill</td></tr>
+        <tr><td>Task that distracts from main focus</td><td>Subagent with skill</td></tr>
+        <tr><td>Knowledge that&rsquo;s project-specific but stable</td><td>Skill file</td></tr>
+      </table>
+
+      <h3 style="font-size: 0.85rem; margin-top: 0.5rem;">Plugins: Skills + Hooks + MCP Bundled</h3>
+      <p style="font-size: 0.75rem;">Since Dec 2025, Claude Code has a <strong>plugin system</strong> &mdash; installable bundles of skills, hooks, MCP servers, and subagents. The system exists and works; the registry ecosystem is still early-stage.</p>
+
+      <div class="insight-box warning" style="margin-top: 0.4rem; padding: 0.4rem 0.6rem;">
+        <p style="font-size: 0.75rem;"><strong>Security:</strong> Skills are markdown files with optional scripts &mdash; <strong>review them before installing</strong>, just like any dependency. AAIF is working on skill verification (like signed packages), but it&rsquo;s not available yet.</p>
+      </div>
+
+      <div class="lab-box" style="margin-top: 0.4rem;">
+        <div>
+          <div class="lab-title"><span class="lab-num">LAB 2</span> Let&rsquo;s try: Skills That Pay the Bills</div>
+          <div class="lab-tagline">Teach your agent a trick once, reuse it forever. DevOps on speed dial.</div>
+        </div>
+      </div>
+
+      <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.3rem; border-top: 1px solid var(--border-color); padding-top: 0.2rem;">
+        <strong>In Other Tools:</strong> Copilot &rarr; <code>.github/skills/*/SKILL.md</code> (same AAIF spec) &nbsp;|&nbsp; Codex &rarr; <code>.codex/skills/</code> &nbsp;|&nbsp; Write once, use everywhere is the real goal.
+      </div>
+    </div>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li><strong>Live demo:</strong> Show the actual Apra Labs skills from GitHub</li>
+      <li>Emphasize the AAIF &mdash; this is not a Claude-only thing. OpenAI, Google, Microsoft are all members.</li>
+      <li>The plugin system is real and shipping &mdash; don&rsquo;t oversell the ecosystem size, it&rsquo;s early</li>
+      <li><strong>Bridge:</strong> &ldquo;Skills give the agent knowledge. But what about actions &mdash; accessing a browser, a database, a CI/CD system? That&rsquo;s MCP.&rdquo;</li>
+      <li>Reference: <a href="https://agentskills.io/specification">agentskills.io/specification</a>, <a href="https://github.com/anthropics/skills">github.com/anthropics/skills</a></li>
+    </ul>
+  </div>
+  <div class="slide-refs">
+    <a href="https://agentskills.io/specification">agentskills.io/specification</a> &nbsp;|&nbsp;
+    <a href="https://github.com/anthropics/skills">github.com/anthropics/skills</a> &nbsp;|&nbsp;
+    <a href="https://github.com/Apra-Labs/claude-bitbucket-devops-skill">Apra Labs bitbucket-devops skill</a>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 6: MCP -->
+<section class="slide">
+  <div class="journey-marker">
+    <span class="jm-item active active-knowledge">&#x25B8; Knowledge</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Safety</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Autonomy</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Scale</span>
+  </div>
+
+  <div class="slide-header">
+    <h2>Your Agent Lives in a Terminal &mdash; MCP Gives It Access to Everything Else <span class="time-badge">5 min</span></h2>
+    <p class="subtitle">Without MCP, every external interaction requires you to copy-paste results into the conversation.</p>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <h3 style="font-size: 0.9rem;">What MCP Actually Is</h3>
+      <p style="font-size: 0.85rem;"><strong>Model Context Protocol</strong> &mdash; an open protocol (<a href="https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation" target="_blank" style="color: inherit; text-decoration: underline dotted;">donated by Anthropic to AAIF, Dec 2025</a>) that connects AI agents to external tools and data sources.</p>
+      <p style="font-size: 0.85rem;">Anthropic&rsquo;s analogy: <strong style="color:var(--accent-blue);">USB-C for AI.</strong> One protocol, any tool, any agent.</p>
+
+      <div style="display:inline-flex; flex-direction:column; align-items:stretch; margin-top: 0.4rem; max-width: 70%;">
+        <div style="border: 2px solid var(--accent-blue); border-radius: 8px 8px 0 0; padding:0.3rem 0.5rem; background:white; text-align:center;">
+          <div style="font-weight:700; font-size:0.72rem; color:var(--accent-blue); margin-bottom:0.15rem;">AGENT <span style="font-weight:400; font-size:0.6rem;">(Claude Code, Copilot, Cursor, etc.)</span></div>
+          <div style="display: flex; gap: 0.3rem; justify-content:center;">
+            <div style="background: #f0fdf4; border: 1px solid var(--accent-green); border-radius: 5px; padding: 0.1rem 0.3rem; font-size: 0.6rem; text-align:center;">
+              <div style="font-weight:600; color:var(--accent-green);">Browser</div><div>snapshot</div>
+            </div>
+            <div style="background: #f0fdf4; border: 1px solid var(--accent-green); border-radius: 5px; padding: 0.1rem 0.3rem; font-size: 0.6rem; text-align:center;">
+              <div style="font-weight:600; color:var(--accent-green);">Database</div><div>query</div>
+            </div>
+            <div style="background: #f0fdf4; border: 1px solid var(--accent-green); border-radius: 5px; padding: 0.1rem 0.3rem; font-size: 0.6rem; text-align:center;">
+              <div style="font-weight:600; color:var(--accent-green);">Slack /</div><div>Jira</div>
+            </div>
+            <div style="background: #f0fdf4; border: 1px solid var(--accent-green); border-radius: 5px; padding: 0.1rem 0.3rem; font-size: 0.6rem; text-align:center;">
+              <div style="font-weight:600; color:var(--accent-green);">Your own</div><div>internal</div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; font-size:0.6rem; color:var(--accent-orange); font-weight:700; padding:0.12rem 0; border: 2px dashed var(--accent-orange); border-top:none; border-radius: 0 0 8px 8px; background:#fff7ed;">&uarr; MCP Protocol &uarr;</div>
+      </div>
+
+      <p style="font-size: 0.78rem; margin-top: 0.5rem;"><strong>Adoption:</strong> MCP is supported by Claude, ChatGPT, Gemini, Microsoft Copilot, Cursor, and VS Code. Anthropic&rsquo;s directory lists 75+ connectors as of Feb 2026.</p>
+
+      <h3 style="font-size: 0.9rem; margin-top: 0.5rem;">Configuration in Claude Code</h3>
+      <p style="font-size: 0.85rem;">Add MCP servers to <code>.claude/settings.json</code> under <code>"mcpServers"</code>. Once configured, MCP tools appear alongside built-in tools &mdash; no special syntax needed. <span style="color:var(--accent-blue);">(Lab 3: full config walkthrough)</span></p>
+    </div>
+
+    <div class="slide-right">
+      <h3 style="font-size: 0.9rem;">When MCP Helps vs. When It Doesn&rsquo;t</h3>
+      <table class="compact" style="font-size: 0.72rem;">
+        <tr><th>Use Case</th><th>MCP?</th><th>Why</th></tr>
+        <tr><td>Capturing browser screenshots</td><td style="color:var(--accent-green);font-weight:600;">Yes</td><td>Agent can&rsquo;t launch a browser natively</td></tr>
+        <tr><td>Querying a database</td><td style="color:var(--accent-green);font-weight:600;">Yes</td><td>Direct access without shell SQL wrappers</td></tr>
+        <tr><td>Posting to Slack/Jira</td><td style="color:var(--accent-green);font-weight:600;">Yes</td><td>Authenticated API access without creds in context</td></tr>
+        <tr><td>Reading/writing local files</td><td style="color:var(--accent-red);font-weight:600;">No</td><td>Agent already has Read/Write/Edit</td></tr>
+        <tr><td>Running shell commands</td><td style="color:var(--accent-red);font-weight:600;">No</td><td>Agent already has Bash</td></tr>
+      </table>
+
+      <div class="insight-box danger" style="margin-top: 0.6rem; padding: 0.6rem 0.8rem;">
+        <p style="font-size: 0.78rem;"><strong>Security Note:</strong> MCP servers run as <strong>local processes with your user&rsquo;s permissions</strong> &mdash; they are not sandboxed by default. A malicious or poorly written MCP server has the same access as any program you run locally.</p>
+        <p style="font-size: 0.72rem; margin-top: 0.25rem;">Treat MCP servers like npm packages: <strong>audit before installing, prefer well-known sources.</strong> The sandbox discussion in slides 7&ndash;10 applies to MCP servers too.</p>
+      </div>
+
+      <div class="lab-box" style="margin-top: 0.5rem;">
+        <div>
+          <div class="lab-title"><span class="lab-num">LAB 3</span> Let&rsquo;s try: Giving Your Agent Eyes</div>
+          <div class="lab-tagline">One prompt, three screenshots, zero browser tabs opened by you.</div>
+        </div>
+      </div>
+
+      <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 0.4rem; border-top: 1px solid var(--border-color); padding-top: 0.25rem;">
+        <strong>In Other Tools:</strong> Copilot &rarr; VS Code MCP support &nbsp;|&nbsp; Cursor &rarr; <code>.cursor/mcp.json</code> &nbsp;|&nbsp; VS Code itself supports MCP as of early 2026. MCP is a protocol, not a product &mdash; same server works everywhere.
+      </div>
+    </div>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>MCP was donated to AAIF alongside skills &mdash; it&rsquo;s the protocol layer, skills are the knowledge layer</li>
+      <li>The browser-snapshot demo is tangible &mdash; the audience sees screenshots appear in real time</li>
+      <li>Don&rsquo;t oversell the connector count &mdash; 75+ is real as of Feb 2026, but not every connector is production-quality</li>
+      <li>MCP servers run as local processes &mdash; they have access to whatever the process has access to</li>
+      <li><strong>Bridge:</strong> &ldquo;MCP extends what the agent can do. But with more capability comes more risk &mdash; let&rsquo;s talk about making all of this safe.&rdquo;</li>
+      <li>Reference: <a href="https://docs.anthropic.com/en/docs/mcp">MCP Docs</a>, <a href="https://www.anthropic.com/news/model-context-protocol">Introducing MCP</a>, <a href="https://github.com/Apra-Labs/browser-snapshot-agent">browser-snapshot-agent</a></li>
+    </ul>
+  </div>
+  <div class="slide-refs">
+    <a href="https://docs.anthropic.com/en/docs/mcp">MCP Docs</a> &nbsp;|&nbsp;
+    <a href="https://www.anthropic.com/news/model-context-protocol">Introducing MCP</a> &nbsp;|&nbsp;
+    <a href="https://github.com/Apra-Labs/browser-snapshot-agent">Apra Labs browser-snapshot-agent</a>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 7: Make Supervision Unnecessary -->
+<section class="slide">
+  <div class="journey-marker">
+    <span class="jm-item">Knowledge</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item active active-safety">&#x25B8; Safety</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Autonomy</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Scale</span>
+  </div>
+
+  <div class="slide-header">
+    <h2>Stop Asking &ldquo;How Do I Supervise?&rdquo; &mdash; Make It Unnecessary <span class="time-badge">3 min</span></h2>
+    <p class="subtitle">If your safety depends on clicking &ldquo;approve&rdquo; 200 times a day, it breaks the moment you step away.</p>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <h3 style="color: var(--accent-red);">The Threat Is Real</h3>
+      <p style="font-size: 0.85rem;">Recent research (<strong>&ldquo;Your AI, My Shell&rdquo;</strong>, <a href="https://arxiv.org/html/2509.22040v1" style="color: inherit;">arXiv 2509.22040</a>) found:</p>
+      <ul style="font-size: 0.85rem; line-height: 1.6;">
+        <li><strong style="color: var(--accent-red); font-size: 1.3rem;">84%</strong> attack success rate against coding agents in auto mode via prompt injection</li>
+        <li>Malicious instructions hidden in GitHub issues, code comments, README files, even rule configuration files</li>
+        <li>The &ldquo;Rules File Backdoor&rdquo; uses <strong>invisible Unicode characters</strong> (zero-width joiners, bidirectional markers) that humans can&rsquo;t see but agents read and follow</li>
+      </ul>
+    </div>
+
+    <div class="slide-right">
+      <h3>The Core Question: Where Do Your Secrets Live?</h3>
+      <table>
+        <tr><th>If secrets are&hellip;</th><th>Then&hellip;</th></tr>
+        <tr><td style="background:#f0fdf4;"><strong>Not on the machine</strong></td><td style="background:#f0fdf4;">Agent can&rsquo;t exfiltrate them regardless of permissions</td></tr>
+        <tr><td style="background:#fef3c7;"><strong>On the machine but denied</strong></td><td style="background:#fef3c7;">Agent can&rsquo;t access them IF you configured deny rules correctly</td></tr>
+        <tr><td style="background:#fef2f2;"><strong>On the machine, accessible</strong></td><td style="background:#fef2f2;">You&rsquo;re one prompt injection away from breach</td></tr>
+      </table>
+      <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--accent-red); font-weight: 600;">Most developers are in state 3 without realizing it.</p>
+
+      <div class="insight-box" style="margin-top: 0.6rem;">
+        <p><strong>The next 3 slides show how to get to state 1.</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-refs">
+    <a href="https://arxiv.org/html/2509.22040v1">&ldquo;Your AI, My Shell&rdquo; (arXiv 2509.22040)</a>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>The 84% stat gets the room&rsquo;s attention &mdash; this is peer-reviewed research, not FUD</li>
+      <li>Ask: &ldquo;How many of you have <code>.env</code> files with production credentials on your dev machine right now?&rdquo;</li>
+      <li>This reframes the conversation: &ldquo;how do I make watching optional&rdquo; &mdash; the next 3 slides show how</li>
+      <li>Reference: <a href="https://arxiv.org/html/2509.22040v1">arXiv 2509.22040</a></li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 8: Secrets Architecture -->
+<section class="slide">
+  <div class="journey-marker">
+    <span class="jm-item">Knowledge</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item active active-safety">&#x25B8; Safety</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Autonomy</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Scale</span>
+  </div>
+
+  <div class="slide-header">
+    <h2>If Secrets Aren&rsquo;t on the Machine, They Can&rsquo;t Be Stolen <span class="time-badge">7 min</span></h2>
+    <p class="subtitle">Architecture that makes autonomy safe &mdash; bounded blast radius by design.</p>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <div style="display:flex; gap:0.6rem; align-items:stretch; max-width:75%;">
+        <div class="diagram-box" style="flex:1; border-color: #f59e0b; border-left: 4px solid #f59e0b; padding:0.35rem 0.5rem;">
+          <div class="box-title" style="color: #f59e0b; font-size:0.72rem; text-align:center;">AGENT&rsquo;S WORLD</div>
+          <div style="display: flex; gap: 1rem; margin-top: 0.15rem; justify-content:center;">
+            <div>
+              <div style="font-weight:600; color:var(--accent-green); font-size:0.65rem;">&#x2713; Can do:</div>
+              <ul style="font-size:0.6rem; margin-left:0.5rem; line-height:1.4;">
+                <li>Read/write code</li>
+                <li>Run tests locally</li>
+                <li>Push to feature branches</li>
+                <li>Trigger pipelines</li>
+              </ul>
+            </div>
+            <div>
+              <div style="font-weight:600; color:var(--accent-red); font-size:0.65rem;">&#x2717; Cannot do:</div>
+              <ul style="font-size:0.6rem; margin-left:0.5rem; line-height:1.4;">
+                <li>Deploy to AWS</li>
+                <li>Access production</li>
+                <li>Read secret vars</li>
+                <li>Push to main / Modify CI/CD</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:0.65rem; color:var(--text-muted); text-align:center; max-width:75%;">&darr; git push feature-branch (the ONE human checkpoint) &darr;</div>
+      <div style="display:flex; gap:0.6rem; max-width:75%;">
+        <div class="diagram-box" style="flex:1; border-color: var(--accent-blue); border-left: 4px solid var(--accent-blue); padding:0.3rem 0.5rem; text-align:center;">
+          <div class="box-title" style="color: var(--accent-blue); font-size:0.72rem;">CI/CD PIPELINE <span style="font-weight:400; font-size:0.6rem;">(Secrets Live Here)</span></div>
+          <div style="font-size:0.6rem;">Secret Vars &rarr; Pipeline Steps &rarr; Deploy &nbsp; <em style="color:var(--text-muted);">Agent never sees these</em></div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 0.8rem; margin-top: 0.3rem;">Claude Code on Web (Cloud Sandbox)</h3>
+      <ul style="font-size: 0.68rem; margin-left: 0.8rem; line-height: 1.45;">
+        <li><strong>Credential proxy architecture</strong>: code cloned to Anthropic-managed VM</li>
+        <li>Git credentials <strong>never enter the sandbox</strong> &mdash; all git ops go through a proxy</li>
+        <li>Proxy holds the real token; agent uses a scoped credential</li>
+        <li>Proxy <strong>inspects content</strong> of git operations before forwarding</li>
+        <li>Git push restricted to current working branch only</li>
+      </ul>
+
+      <h3 style="font-size: 0.8rem; margin-top: 0.3rem;">Claude Code Local (Dual Isolation)</h3>
+      <ul style="font-size: 0.68rem; margin-left: 0.8rem; line-height: 1.45;">
+        <li><strong>Filesystem sandbox</strong>: deny <code>~/.ssh</code>, <code>~/.aws</code>, <code>~/.config/gcloud</code>, <code>.env</code></li>
+        <li><strong>Network sandbox</strong>: all traffic through proxy with domain allowlists</li>
+        <li>Linux: bubblewrap containers &nbsp;|&nbsp; macOS: Apple seatbelt</li>
+        <li><strong>Windows:</strong> sandbox limited &mdash; use Cloud or a Linux VM for stronger isolation</li>
+        <li>Restrictions apply to Claude <strong>and all subprocesses</strong> (including MCP servers)</li>
+      </ul>
+    </div>
+
+    <div class="slide-right">
+      <blockquote style="font-size: 0.78rem; border-left-color: var(--accent-red);">
+        Trail of Bits&rsquo; documented engineering position: <strong>&ldquo;Security is enforced at the sandbox level, not the permission prompt level.&rdquo;</strong> They run <code>--dangerously-skip-permissions</code> with sandbox enabled in production.
+      </blockquote>
+      <p style="font-size: 0.65rem; color: var(--text-muted);">Source: <a href="https://github.com/trailofbits/claude-code-config">trailofbits/claude-code-config</a></p>
+
+      <h3 style="font-size: 0.85rem; margin-top: 0.6rem;">Worst Case Analysis</h3>
+      <table class="compact" style="font-size: 0.72rem;">
+        <tr><th>If the agent goes rogue&hellip;</th><th>Impact</th></tr>
+        <tr><td>Pushes garbage code</td><td>PR review catches it, or tests fail in pipeline</td></tr>
+        <tr><td>Prompt injection tries to steal secrets</td><td style="color:var(--accent-green);font-weight:600;">Fails &mdash; secrets aren&rsquo;t on the machine</td></tr>
+        <tr><td>Goes completely off track</td><td>Affects only feature branches, never production</td></tr>
+      </table>
+
+      <div class="insight-box" style="margin-top: 0.5rem;">
+        <p style="font-size: 0.85rem;"><strong>The blast radius is bounded by architecture, not by clicking &ldquo;approve.&rdquo;</strong></p>
+      </div>
+
+      <div class="demo-box" style="margin-top: 0.5rem;">
+        <div class="demo-icon">&#x1F9D1;&#x200D;&#x1F3EB;</div>
+        <div>
+          <div class="demo-title"><span class="demo-badge">SHOW &amp; TELL</span> This Is Our Actual Pipeline</div>
+          <div class="demo-tagline">Secrets in the vault, agent in the sandbox &mdash; show, don&rsquo;t tell.</div>
+          <div class="demo-links">
+            <a href="https://bitbucket.org/kumaakh/apra-lic-mgr/src/main/bitbucket-pipelines.yml">bitbucket-pipelines.yml</a> &nbsp;|&nbsp;
+            <a href="https://bitbucket.org/kumaakh/apra-lic-mgr/admin/pipelines/repository-variables">Repository Variables (secrets)</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-refs">
+    <a href="https://www.anthropic.com/engineering/claude-code-sandboxing">Claude Code Sandboxing</a> &nbsp;|&nbsp;
+    <a href="https://github.com/trailofbits/claude-code-config">trailofbits/claude-code-config</a> &nbsp;|&nbsp;
+    <a href="https://github.com/anthropic-experimental/sandbox-runtime">sandbox-runtime (open source)</a>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>This is the crown jewel of the safety argument</li>
+      <li>The credential proxy architecture is elegant &mdash; show how Claude Code on Web works</li>
+      <li>Trail of Bits&rsquo; <a href="https://github.com/trailofbits/claude-code-config">claude-code-config</a> is a practical reference for production settings</li>
+      <li>Sandboxing dramatically reduces permission prompts while maintaining security</li>
+      <li><strong>Bridge:</strong> &ldquo;Architecture and sandbox are the top two layers. But there are four more &mdash; and most people are missing the one in the middle.&rdquo;</li>
+      <li>Reference: <a href="https://www.anthropic.com/engineering/claude-code-sandboxing">Claude Code Sandboxing</a>, <a href="https://github.com/anthropic-experimental/sandbox-runtime">sandbox-runtime (open source)</a></li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 9: Six Guardrails -->
+<section class="slide">
+  <div class="journey-marker">
+    <span class="jm-item">Knowledge</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item active active-safety">&#x25B8; Safety</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Autonomy</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Scale</span>
+  </div>
+
+  <div class="slide-header">
+    <h2>Six Guardrails, Strongest First &mdash; Most People Build Backwards <span class="time-badge">5 min</span></h2>
+    <p class="subtitle">Most people obsess over Level 6 while ignoring Levels 1&ndash;3. Build top-down.</p>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <h3 style="font-size: 0.85rem;">Build From the Top Down</h3>
+      <div style="font-size: 0.72rem; line-height: 1.45;">
+        <div style="background: linear-gradient(90deg, #16a34a22 0%, transparent 100%); border-left: 4px solid var(--accent-green); padding: 0.35rem 0.6rem; margin-bottom: 0.25rem; border-radius: 0 4px 4px 0;">
+          <strong style="color:var(--accent-green);">L1: ARCHITECTURE</strong> &mdash; Secrets in CI/CD. Branch protection. Limited git.<br>
+          <span style="color:var(--text-muted);">&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588; Structural &mdash; can&rsquo;t be bypassed</span>
+        </div>
+        <div style="background: linear-gradient(90deg, #16a34a18 0%, transparent 100%); border-left: 4px solid #22c55e; padding: 0.35rem 0.6rem; margin-bottom: 0.25rem; border-radius: 0 4px 4px 0;">
+          <strong style="color:#22c55e;">L2: SANDBOX</strong> &mdash; Filesystem + network isolation (bubblewrap / seatbelt)<br>
+          <span style="color:var(--text-muted);">&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2591; OS-enforced &mdash; very hard to bypass</span>
+        </div>
+        <div style="background: linear-gradient(90deg, #2563eb15 0%, transparent 100%); border-left: 4px solid var(--accent-blue); padding: 0.35rem 0.6rem; margin-bottom: 0.25rem; border-radius: 0 4px 4px 0;">
+          <strong style="color:var(--accent-blue);">L3: HOOKS</strong> &mdash; PreToolUse blocks commands; PostToolUse validates<br>
+          <span style="color:var(--text-muted);">&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2591;&#x2591; Programmable + deterministic</span>
+        </div>
+        <div style="background: linear-gradient(90deg, #ea580c10 0%, transparent 100%); border-left: 4px solid var(--accent-orange); padding: 0.35rem 0.6rem; margin-bottom: 0.25rem; border-radius: 0 4px 4px 0;">
+          <strong style="color:var(--accent-orange);">L4: SETTINGS / DENY RULES</strong> &mdash; Disallowed tools, blocked commands<br>
+          <span style="color:var(--text-muted);">&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2591;&#x2591;&#x2591;&#x2591; Tool-enforced &mdash; requires config</span>
+        </div>
+        <div style="background: linear-gradient(90deg, #dc262610 0%, transparent 100%); border-left: 4px solid #f87171; padding: 0.35rem 0.6rem; margin-bottom: 0.25rem; border-radius: 0 4px 4px 0;">
+          <strong style="color:#f87171;">L5: PROJECT INSTRUCTIONS</strong> &mdash; CLAUDE.md guidance, conventions<br>
+          <span style="color:var(--text-muted);">&#x2588;&#x2588;&#x2588;&#x2588;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591; Agent-followed &mdash; advisory only</span>
+        </div>
+        <div style="background: linear-gradient(90deg, #dc262608 0%, transparent 100%); border-left: 4px solid var(--accent-red); padding: 0.35rem 0.6rem; border-radius: 0 4px 4px 0;">
+          <strong style="color:var(--accent-red);">L6: PERMISSION PROMPTS</strong> &mdash; Interactive approval per operation<br>
+          <span style="color:var(--text-muted);">&#x2588;&#x2588;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591; Human-dependent &mdash; approval fatigue is real</span>
+        </div>
+      </div>
+
+      <div class="insight-box" style="margin-top: 0.5rem; padding: 0.4rem 0.6rem;">
+        <p style="font-size: 0.75rem;"><strong>The Inversion:</strong> If L1 + L2 are solid, you can safely disable L6 (prompts). Hooks (L3) add automation. If architecture is weak, no amount of prompts will save you.</p>
+      </div>
+    </div>
+
+    <div class="slide-right">
+      <h3 style="font-size: 0.9rem;">Hooks (Level 3) &mdash; Automation, Not Security</h3>
+      <p style="font-size: 0.78rem; margin-bottom: 0.4rem;">Unlike CLAUDE.md (advisory) or settings.json (static), hooks are <strong>programmable</strong>. But be honest: they catch mistakes, not attacks.</p>
+
+      <div style="font-size: 0.75rem; line-height: 1.5;">
+        <p><strong>PreToolUse:</strong> Tiered response &mdash; <span style="color:var(--accent-red);">hard block</span> (exit 2) for irreversible, <span style="color:var(--accent-orange);">ask user</span> (exit 0 + JSON) for risky, allow silently for safe.</p>
+        <p style="margin-top:0.3rem;"><strong>PostToolUse:</strong> Auto-lint, auto-test &mdash; this is where hooks genuinely compound.</p>
+      </div>
+
+      <div style="background: var(--bg-secondary); border-radius: 8px; padding: 0.5rem 0.7rem; margin-top: 0.5rem; font-size: 0.78rem;">
+        <p><strong>Configure in <code>.claude/settings.json</code></strong> &mdash; matcher selects which tools trigger the hook. <span style="color:var(--accent-blue);">(Lab 4: full config + script walkthrough)</span></p>
+        <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem;">Three hook types: <strong>command</strong> (shell script), <strong>prompt</strong> (single-turn LLM check), <strong>agent</strong> (verification subagent).</p>
+      </div>
+
+      <div class="lab-box" style="margin-top: 0.5rem;">
+        <div>
+          <div class="lab-title"><span class="lab-num">LAB 4</span> Let&rsquo;s try: Hooks That Bite Back</div>
+          <div class="lab-tagline">Ask the agent to do something destructive. Watch the hook say &ldquo;nope.&rdquo;</div>
+        </div>
+      </div>
+
+      <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 0.5rem; border-top: 1px solid var(--border-color); padding-top: 0.25rem;">
+        <strong>In Other Tools:</strong> No hooks equivalent in Copilot, Cursor, or Windsurf (Feb 2026). OpenAI Codex uses cloud sandbox instead. Hooks are a Claude Code differentiator.
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-refs">
+    <a href="https://code.claude.com/docs/en/hooks-guide">Hooks Guide</a>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>Walk through the tiered script: hard block for <code>git push --force</code> (exit 2), ask for <code>rm -r</code> (exit 0 + JSON), everything else flows through</li>
+      <li>Be honest: PreToolUse hooks catch mistakes, not attacks. The agent can read the script and work around the regex.</li>
+      <li>The real star is PostToolUse: auto-linting, auto-testing &mdash; this is where hooks compound</li>
+      <li>The &ldquo;click #247&rdquo; line gets a knowing laugh</li>
+      <li><strong>Bridge:</strong> &ldquo;Six layers. But how do you know when you&rsquo;re actually ready to go autonomous? There&rsquo;s a checklist.&rdquo;</li>
+      <li>Reference: <a href="https://code.claude.com/docs/en/hooks-guide">Hooks Guide</a></li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 10: Autonomy Checklist -->
+<section class="slide">
+  <div class="journey-marker">
+    <span class="jm-item">Knowledge</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item active active-safety">&#x25B8; Safety</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Autonomy</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Scale</span>
+  </div>
+
+  <div class="slide-header">
+    <h2>Run This Checklist Before You Go Autonomous <span class="time-badge">5 min</span></h2>
+    <p class="subtitle">If you can check all of these, unattended operation isn&rsquo;t dangerous.</p>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <h3 style="font-size: 0.9rem;">The Autonomy Readiness Checklist</h3>
+      <div style="font-size: 0.78rem; line-height: 1.7;">
+        <div style="padding: 0.25rem 0; border-bottom: 1px solid #f1f5f9;"><span style="color:var(--accent-green); font-weight:700;">&#x2610;</span> <strong>Secrets in CI/CD</strong> &mdash; AWS keys, API tokens, DB passwords in pipeline secret variables, not <code>.env</code> files</div>
+        <div style="padding: 0.25rem 0; border-bottom: 1px solid #f1f5f9;"><span style="color:var(--accent-green); font-weight:700;">&#x2610;</span> <strong>Limited git access</strong> &mdash; Agent can push to feature branches only, not main/master</div>
+        <div style="padding: 0.25rem 0; border-bottom: 1px solid #f1f5f9;"><span style="color:var(--accent-green); font-weight:700;">&#x2610;</span> <strong>Branch protection enabled</strong> &mdash; Main requires PR + review + passing tests</div>
+        <div style="padding: 0.25rem 0; border-bottom: 1px solid #f1f5f9;"><span style="color:var(--accent-green); font-weight:700;">&#x2610;</span> <strong>Pipeline runs tests</strong> &mdash; Broken code can&rsquo;t merge</div>
+        <div style="padding: 0.25rem 0; border-bottom: 1px solid #f1f5f9;"><span style="color:var(--accent-green); font-weight:700;">&#x2610;</span> <strong>Human reviews PRs</strong> &mdash; The ONE checkpoint that matters</div>
+        <div style="padding: 0.25rem 0; border-bottom: 1px solid #f1f5f9;"><span style="color:var(--accent-green); font-weight:700;">&#x2610;</span> <strong>No credentials on agent&rsquo;s machine</strong> &mdash; Or explicit deny rules if there are</div>
+        <div style="padding: 0.25rem 0;"><span style="color:var(--accent-green); font-weight:700;">&#x2610;</span> <strong>Hooks block destructive commands</strong> &mdash; PreToolUse denies <code>rm -rf</code>, <code>git push --force</code>, etc.</div>
+      </div>
+
+      <div class="insight-box warning" style="margin-top: 0.5rem; padding: 0.4rem 0.6rem;">
+        <p style="font-size: 0.72rem;"><strong>No CI/CD?</strong> Keep credentials out of the agent&rsquo;s environment. Use a dedicated deploy machine. The agent&rsquo;s job ends at &ldquo;code committed and tests pass.&rdquo;</p>
+      </div>
+    </div>
+
+    <div class="slide-right">
+      <h3 style="font-size: 0.85rem;">Sandbox Options (Feb 2026)</h3>
+      <table class="compact" style="font-size: 0.65rem;">
+        <tr><th>Option</th><th>How It Works</th><th>Best For</th></tr>
+        <tr><td><strong>Claude Code sandbox</strong></td><td>OS-level (bubblewrap/seatbelt). Dual filesystem + network.</td><td>Daily development</td></tr>
+        <tr><td><strong>Claude Code on Web</strong></td><td>Anthropic-managed VM, credential proxy, git restricted</td><td>Convenience + strong isolation</td></tr>
+        <tr><td><strong>Docker Sandboxes</strong></td><td>MicroVM per agent with private Docker daemon. File sync.</td><td>Agents that build Docker</td></tr>
+        <tr><td><strong>Dedicated device</strong></td><td>Physical separation. Credentials don&rsquo;t exist there.</td><td>Overnight runs, high-stakes</td></tr>
+        <tr><td><strong>E2B</strong></td><td>Cloud Firecracker microVMs, 150ms startup, 24hr sessions</td><td>Scalable parallel agents</td></tr>
+      </table>
+
+      <h3 style="font-size: 0.85rem; margin-top: 0.5rem;">Credential Protection Tiers</h3>
+      <table class="compact" style="font-size: 0.68rem;">
+        <tr><th>Tier</th><th>Approach</th><th>Exposure</th></tr>
+        <tr style="background:#f0fdf4;"><td style="color:var(--accent-green);font-weight:700;">Gold</td><td>Secrets don&rsquo;t exist on agent&rsquo;s machine. All deploy via CI/CD. Credential proxy for git.</td><td><strong>Zero.</strong></td></tr>
+        <tr style="background:#fef3c7;"><td style="color:var(--accent-orange);font-weight:700;">Silver</td><td>Local sandbox with deny rules for <code>~/.ssh</code>, <code>~/.aws</code>, <code>~/.config/gcloud</code> + network proxy</td><td>Low.</td></tr>
+        <tr style="background:#fef2f2;"><td style="color:var(--accent-red);font-weight:700;">Bronze</td><td>YOLO on main machine with credentials present</td><td><strong>High.</strong> One prompt injection from breach.</td></tr>
+      </table>
+
+      <div class="insight-box" style="margin-top: 0.5rem;">
+        <p style="font-size: 0.75rem;"><strong>Once you&rsquo;re at Gold, slides 11&ndash;14 become feasible with bounded risk.</strong> The worst case is a messy feature branch, not a production breach.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-refs">
+    <a href="https://www.anthropic.com/engineering/claude-code-sandboxing">Claude Code Sandboxing</a> &nbsp;|&nbsp;
+    <a href="https://www.docker.com/blog/docker-sandboxes-a-new-approach-for-coding-agent-safety/">Docker Sandboxes</a> &nbsp;|&nbsp;
+    <a href="https://e2b.dev/">E2B</a>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>This is the bridge slide: &ldquo;Now that you understand the safety architecture, you&rsquo;re ready to go autonomous&rdquo;</li>
+      <li>The checklist is a take-home &mdash; they can run through it Monday morning</li>
+      <li>Docker Sandboxes (microVM) are new &mdash; the agent gets its own Docker daemon, isolated from the host</li>
+      <li>&ldquo;Gold tier means you can run <code>--dangerously-skip-permissions</code> because there&rsquo;s nothing dangerous to skip&rdquo;</li>
+      <li>Reference: <a href="https://www.docker.com/blog/docker-sandboxes-a-new-approach-for-coding-agent-safety/">Docker Sandboxes</a>, <a href="https://e2b.dev/">E2B</a></li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 11: Three Autonomy Modes (Intro) -->
+<section class="slide">
+  <div class="journey-marker">
+    <span class="jm-item">Knowledge</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Safety</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item active active-autonomy">&#x25B8; Autonomy</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Scale</span>
+  </div>
+
+  <div class="slide-header">
+    <h2>You&rsquo;re About to Hand Over the Wheel &mdash; Three Modes, One Rule: Safety First <span class="time-badge">1 min</span></h2>
+    <p class="subtitle">Each mode trades attention for autonomy. Pick the one that matches your situation.</p>
+  </div>
+
+  <div class="slide-content" style="padding-top: 1rem;">
+    <div class="slide-left">
+      <div class="autonomy-staircase"></div>
+    </div>
+
+    <div class="slide-right">
+      <h3 style="font-size: 0.9rem;">The Key Difference</h3>
+      <div style="font-size: 0.82rem; line-height: 1.7; color: var(--text-secondary);">
+        <p><strong style="color:var(--accent-purple);">FSD Steering:</strong> You put a prompt in CLAUDE.md that says &ldquo;don&rsquo;t ask, just do&rdquo; &mdash; but you&rsquo;re watching and can interrupt anytime.</p>
+        <p style="margin-top: 0.5rem;"><strong style="color:#f59e0b;">Ralph Wiggum:</strong> A <strong>Stop hook</strong> keeps the agent iterating inside one session until it hits a finish line or a max iteration cap.</p>
+        <p style="margin-top: 0.5rem;"><strong style="color:var(--accent-blue);">Overnight Harness:</strong> A <strong>shell loop</strong> restarts the agent across multiple sessions. Each restart gets fresh context from git + JSON state files.</p>
+      </div>
+
+      <div class="insight-box" style="margin-top: 0.8rem;">
+        <p style="font-size: 0.85rem;"><strong>All three require the safety architecture from slides 7&ndash;10.</strong></p>
+        <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.15rem;">No secrets on the machine. Hooks as guardrails. Gold-tier checklist passed.</p>
+      </div>
+
+      <p style="font-size: 0.78rem; margin-top: 0.8rem; color: var(--text-secondary);">We&rsquo;ll cover each one in depth over the next three slides, then compare them.</p>
+    </div>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>This is the advance organizer &mdash; 60 seconds max. Just set the frame.</li>
+      <li>Point at the staircase: &ldquo;We&rsquo;re going to climb this. Starting with the mode you&rsquo;ll use most often.&rdquo;</li>
+      <li>Emphasize that all three depend on the safety architecture they just learned.</li>
+      <li><strong>Bridge:</strong> &ldquo;Let&rsquo;s start with the one you&rsquo;ll use 80% of the time &mdash; FSD steering.&rdquo;</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 12: FSD Steering Mode -->
+<section class="slide" style="border-top: 4px solid var(--accent-purple);">
+  <div class="journey-marker">
+    <span class="jm-item">Knowledge</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Safety</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item active active-autonomy">&#x25B8; Autonomy</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Scale</span>
+  </div>
+
+  <div class="slide-header">
+    <h2><span style="color:var(--accent-purple);">FSD Mode:</span> Hands on the Wheel, Eyes on the Terminal <span class="time-badge">5 min</span></h2>
+    <blockquote style="font-size: 0.85rem; margin-top: 0.2rem;">Autonomous forward motion. Hands on the wheel. You observe, question, redirect &mdash; but the agent keeps driving.</blockquote>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <div style="display: flex; justify-content: center; margin-bottom: 0.2rem;">
+        <div class="gif-wrap" onclick="toggleGif(this)" style="cursor: pointer; position: relative; width: 380px;">
+          <img src="https://media1.tenor.com/m/dB8wLdMzSvcAAAAC/no-hands-rich-rebuilds.gif" alt="Tesla hands-free driving — the FSD metaphor" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.15); display:block;">
+          <p class="gif-hint" style="font-size: 0.55rem; color: var(--text-muted); margin-top: 0.1rem; text-align:center;">Click to pause</p>
+        </div>
+      </div>
+      <h3 style="font-size: 0.85rem;">Two Layers Make FSD Work</h3>
+
+      <div style="margin-top: 0.2rem;">
+        <div style="font-weight:700; font-size:0.78rem; color:var(--accent-red); margin-bottom:0.15rem;">Layer 1: Permission Mode (system-level)</div>
+        <div style="display: inline-block; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.25rem 0.5rem; font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-primary);">
+          <span style="color:var(--text-muted);">// .claude/settings.json</span><br>
+          <span style="color:#b45309;">"permissions"</span>: { <span style="color:#b45309;">"defaultMode"</span>: <span style="color:#15803d;">"bypassPermissions"</span> }
+        </div>
+        <p style="font-size: 0.72rem; margin-top: 0.2rem;">This is the <strong>real switch</strong>. Without it, the agent stops to ask &ldquo;may I?&rdquo; on every tool call. No amount of CLAUDE.md text overrides this.</p>
+      </div>
+
+      <div style="margin-top: 0.4rem;">
+        <div style="font-weight:700; font-size:0.78rem; color:var(--accent-blue); margin-bottom:0.15rem;">Layer 2: Behavioral Instructions (CLAUDE.md)</div>
+        <pre style="font-size: 0.60rem; padding: 0.3rem 0.5rem; margin: 0; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); white-space: pre-wrap;"><span style="color:#b45309;">## Working Style</span>
+Work autonomously. Don&rsquo;t ask &ldquo;should I proceed?&rdquo; &mdash; just proceed. Explain what you&rsquo;re doing as you go.
+Commit after each logical unit of work.</pre>
+        <p style="font-size: 0.72rem; margin-top: 0.2rem;">This reduces <strong>conversational</strong> check-ins &mdash; the agent being polite. It&rsquo;s a nudge, not a guarantee. The agent still pauses when genuinely uncertain.</p>
+      </div>
+
+      <div style="margin-top: 0.4rem; padding: 0.4rem 0.6rem; background: linear-gradient(90deg, #faf5ff 0%, #f8fafc 100%); border-left: 3px solid var(--accent-purple); border-radius: 0 8px 8px 0;">
+        <p style="font-size: 0.75rem;"><strong>Your role:</strong> Watch the terminal. Ctrl+C is your brake pedal. Inject ideas mid-stream: <em>&ldquo;try this approach instead.&rdquo;</em></p>
+      </div>
+
+    </div>
+
+    <div class="slide-right">
+      <h3 style="font-size: 0.85rem;">When Do You Actually Look?</h3>
+      <p style="font-size: 0.75rem; margin-bottom: 0.3rem;">FSD only works if you have <strong>natural observation points</strong>. They&rsquo;re already in your workflow:</p>
+
+      <table class="compact-table" style="font-size: 0.72rem; margin-top: 0.3rem;">
+        <tr style="background: var(--bg-card);">
+          <th style="padding: 0.25rem 0.5rem;">Moment</th>
+          <th style="padding: 0.25rem 0.5rem;">What you do</th>
+        </tr>
+        <tr>
+          <td style="padding: 0.25rem 0.5rem;"><strong>Build / test running</strong></td>
+          <td style="padding: 0.25rem 0.5rem;">Glance at terminal &mdash; is it on track?</td>
+        </tr>
+        <tr>
+          <td style="padding: 0.25rem 0.5rem;"><strong>Commit message appears</strong></td>
+          <td style="padding: 0.25rem 0.5rem;">Read the diff summary &mdash; does it match intent?</td>
+        </tr>
+        <tr>
+          <td style="padding: 0.25rem 0.5rem;"><strong>Agent asks a question</strong></td>
+          <td style="padding: 0.25rem 0.5rem;">Answer or redirect &mdash; this is your steering input</td>
+        </tr>
+        <tr>
+          <td style="padding: 0.25rem 0.5rem;"><strong>Task boundary</strong></td>
+          <td style="padding: 0.25rem 0.5rem;">Review output before giving next task</td>
+        </tr>
+      </table>
+
+      <div class="insight-box" style="margin-top: 0.5rem;">
+        <p style="font-size: 0.78rem;"><strong>Build wait times are natural observation windows &mdash; feature, not bug.</strong></p>
+        <p style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 0.2rem;">&ldquo;I can be on a Zoom call and glance at the terminal between topics.&rdquo;</p>
+      </div>
+
+      <div style="margin-top: 0.4rem; padding: 0.4rem 0.6rem; background: linear-gradient(90deg, #fefce8 0%, #f8fafc 100%); border-left: 3px solid var(--accent-orange); border-radius: 0 8px 8px 0;">
+        <p style="font-size: 0.72rem;"><strong>&ldquo;What if my builds are fast?&rdquo;</strong></p>
+        <p style="font-size: 0.68rem; margin-top: 0.15rem;">Then your observation window is the <strong>commit message + diff</strong>. Fast builds mean the agent moves fast &mdash; so you review at task boundaries instead. If that&rsquo;s still too fast, you&rsquo;re not in FSD mode &mdash; you&rsquo;re in the Ralph Wiggum Loop (next slide).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>This is YOUR operating model &mdash; speak from experience</li>
+      <li>The two layers are the key insight: permission mode is the real switch, CLAUDE.md is just manners</li>
+      <li>&ldquo;I can be on a Zoom call and glance at the terminal between topics&rdquo;</li>
+      <li>Build wait times are natural observation windows &mdash; you&rsquo;re not adding supervision, you&rsquo;re using time that already exists</li>
+      <li>Alex will ask: &ldquo;what if builds are fast?&rdquo; Answer: then review at commit/task boundaries. If even that&rsquo;s too fast, you need the Ralph Wiggum Loop (bounded automation, next slide)</li>
+      <li><strong>Bridge:</strong> &ldquo;FSD works when you&rsquo;re at the keyboard. But what about when you want to step away? The agent needs to loop on its own &mdash; with guardrails. That&rsquo;s the Ralph Wiggum Loop.&rdquo;</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 13: The Ralph Wiggum Loop -->
+<section class="slide" style="border-top: 4px solid #f59e0b;">
+  <div class="journey-marker">
+    <span class="jm-item">Knowledge</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Safety</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item active active-autonomy">&#x25B8; Autonomy</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Scale</span>
+  </div>
+
+  <div class="slide-header">
+    <h2><span style="color:#f59e0b;">Ralph Wiggum Loop:</span> Give It a Goal, a Promise, and a Limit <span class="time-badge">5 min</span></h2>
+    <p class="subtitle">&ldquo;I&rsquo;m Helping!&rdquo; &mdash; Your agent in an unbounded loop: enthusiastic but unaccountable.</p>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <p style="font-size: 0.78rem;">The Ralph Wiggum Loop adds three constraints that turn enthusiastic flailing into bounded autonomy:</p>
+      <ul style="font-size: 0.78rem; margin-left: 1.2rem; margin-top: 0.15rem;">
+        <li>A clear <strong>finish line</strong></li>
+        <li><strong>Externalized</strong> state</li>
+        <li>A <strong>kill switch</strong></li>
+      </ul>
+
+      <h3 style="font-size: 0.85rem; margin-top: 0.3rem;">The Plugin (Official Anthropic)</h3>
+      <pre style="font-size: 0.65rem; padding: 0.5rem 0.7rem;"><span style="color:#94a3b8;"># Install once</span>
+claude plugin install ralph-loop@claude-plugins-official
+
+<span style="color:#94a3b8;"># Usage pattern</span>
+/ralph-loop:ralph-loop <span style="color:#86efac;">"&lt;goal + test + state + promise&gt;"</span> \
+  --completion-promise <span style="color:#86efac;">"DONE"</span> \
+  --max-iterations <span style="color:#fbbf24;">30</span></pre>
+      <p style="font-size: 0.68rem; color: var(--text-muted);">Full prompt example in <span style="color:var(--accent-blue);">Lab 5</span>.</p>
+
+      <h3 style="font-size: 0.85rem; margin-top: 0.4rem;">How It Works</h3>
+      <p style="font-size: 0.75rem;">Uses a <strong>Stop hook</strong> &mdash; when Claude tries to exit, the hook intercepts and feeds the same prompt back. Claude sees its own previous work (modified files, git history) and continues. Repeats until the completion promise is output or max iterations is hit.</p>
+
+      <h3 style="font-size: 0.85rem; margin-top: 0.4rem;">Five Elements That Make It Work</h3>
+      <table class="compact" style="font-size: 0.68rem;">
+        <tr><th>Element</th><th>What It Does</th><th>Without It</th></tr>
+        <tr><td><strong>Clear goal</strong></td><td>&ldquo;Implement Phase 2 per plan.md&rdquo;</td><td>Agent wanders</td></tr>
+        <tr><td><strong>Binary success criteria</strong></td><td>&ldquo;all Phase 2 tasks pass tests&rdquo;</td><td>Declares &ldquo;done&rdquo; when it&rsquo;s not</td></tr>
+        <tr><td><strong>State externalization</strong></td><td>&ldquo;Update progress.md after each task&rdquo;</td><td>Progress lost on overflow</td></tr>
+        <tr><td><strong>Completion promise</strong></td><td><code>&lt;promise&gt;PHASE2_DONE&lt;/promise&gt;</code></td><td>Can&rsquo;t tell if finished or crashed</td></tr>
+        <tr><td><strong>Max iterations</strong></td><td><code>--max-iterations 30</code></td><td>Burns API budget on unsolvable task</td></tr>
+      </table>
+    </div>
+
+    <div class="slide-right">
+      <h3 style="font-size: 0.85rem;">When It Works vs. When It Doesn&rsquo;t</h3>
+      <table class="compact" style="font-size: 0.72rem;">
+        <tr><th style="color:var(--accent-green);">Works</th><th style="color:var(--accent-red);">Doesn&rsquo;t Work</th></tr>
+        <tr><td>Well-defined tasks with clear done criteria</td><td>Vague goals (&ldquo;make it better&rdquo;)</td></tr>
+        <tr><td>Tests exist to validate completion</td><td>No automated validation</td></tr>
+        <tr><td>State tracked in files (progress.md)</td><td>State only in conversation context</td></tr>
+        <tr><td>Task fits in one context window</td><td>Task requires multiple context resets</td></tr>
+      </table>
+
+      <div class="insight-box" style="margin-top: 0.5rem;">
+        <p style="font-size: 0.82rem;"><strong>You gave it autonomy. It gave you accountability. That&rsquo;s the deal.</strong></p>
+      </div>
+
+      <div class="lab-box" style="margin-top: 0.4rem;">
+        <div>
+          <div class="lab-title"><span class="lab-num">LAB 5</span> Let&rsquo;s try: The Loop That Knows When to Stop</div>
+          <div class="lab-tagline">Unlike your last meeting, this one actually ends when it&rsquo;s done.</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 0.5rem; background: var(--bg-secondary); border-radius: 8px; padding: 0.5rem 0.7rem;">
+        <p style="font-size: 0.72rem; color: var(--text-secondary);"><strong>Emergency stop:</strong> <code>/cancel-ralph</code></p>
+        <p style="font-size: 0.68rem; color: var(--text-muted); margin-top: 0.2rem;"><code>--max-iterations</code> is non-negotiable &mdash; without it, a stuck agent burns tokens until your budget is gone.</p>
+      </div>
+
+      <div class="gif-wrap" onclick="toggleGif(this)" style="margin-top: 0.4rem; cursor: pointer; align-self: flex-start; position: relative; width: 250px;">
+        <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2J0dG15OW9seG00cHZ3MXk3ZjZqbHhhaGJoNjZwamZsMGg2ZzJlcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l2JdX1lCEu2NKlNf2/giphy.gif" alt="Ralph Wiggum - I'm Helping!" style="width: 250px; height: auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); display:block;">
+        <p class="gif-hint" style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem;">Click to pause</p>
+        <p style="font-size: 0.55rem; margin-top: 0.15rem;"><a href="https://venturebeat.com/technology/how-ralph-wiggum-went-from-the-simpsons-to-the-biggest-name-in-ai-right-now" style="color: var(--text-muted);">VentureBeat</a> &nbsp;&bull;&nbsp; <a href="https://en.wikipedia.org/wiki/Ralph_Wiggum" style="color: var(--text-muted);">Wikipedia</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-refs">
+    <a href="https://code.claude.com/docs/en/hooks-guide">Hooks Guide (Stop hook)</a> &nbsp;|&nbsp;
+    <a href="https://code.claude.com/docs/en/plugins">Claude Code Plugins</a>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>The Simpsons reference gets a laugh &mdash; lean into it</li>
+      <li>The plugin is official &mdash; <code>ralph-loop@claude-plugins-official</code>. Browse others with <code>/plugins</code></li>
+      <li><code>--max-iterations</code> is non-negotiable &mdash; without it, an agent stuck on an unsolvable task burns tokens</li>
+      <li><code>/cancel-ralph</code> is the emergency stop &mdash; always mention it</li>
+      <li><strong>Bridge:</strong> &ldquo;Ralph works great for bounded tasks in one session. But what about a full feature list &mdash; 5 features overnight? Ralph can&rsquo;t survive context overflow. For that, you need a different architecture.&rdquo;</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 14: Overnight Harness -->
+<section class="slide" style="border-top: 4px solid var(--accent-blue);">
+  <div class="journey-marker">
+    <span class="jm-item">Knowledge</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Safety</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item active active-autonomy">&#x25B8; Autonomy</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Scale</span>
+  </div>
+
+  <div class="slide-header">
+    <h2><span style="color:var(--accent-blue);">Overnight Harness:</span> Your Agent Runs While You Sleep <span class="time-badge">7 min</span></h2>
+    <p class="subtitle">Architecture that <strong>survives context overflow</strong> &mdash; each restart picks up where the last left off.</p>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <h3 style="font-size: 0.8rem;">The Initializer + Coding Agent Pattern</h3>
+      <div class="diagram-box" style="border-color: #f59e0b; border-left: 4px solid #f59e0b; max-width: 88%;">
+        <div class="box-title" style="color: #f59e0b;">INITIALIZER <span style="font-weight:400; font-size:0.65rem;">(runs once)</span></div>
+        <ul style="font-size:0.65rem; margin-left:0.6rem; line-height:1.5;">
+          <li>Creates init.sh (env setup)</li>
+          <li>Generates feature_list.json</li>
+          <li>Creates progress.md + git commit</li>
+        </ul>
+      </div>
+      <div class="diagram-arrow" style="font-size:1rem;">&darr;</div>
+      <div class="diagram-box" style="border-color: var(--accent-blue); border-left: 4px solid var(--accent-blue); max-width: 88%;">
+        <div class="box-title" style="color: var(--accent-blue);">CODING AGENT <span style="font-weight:400; font-size:0.65rem;">(loops across windows)</span></div>
+        <div style="font-size:0.65rem; margin-top:0.2rem; line-height:1.5;">
+          while features remain:<br>
+          &nbsp;&nbsp;1. Read progress + git log<br>
+          &nbsp;&nbsp;2. Pick ONE feature<br>
+          &nbsp;&nbsp;3. Implement + test<br>
+          &nbsp;&nbsp;4. Update feature_list.json<br>
+          &nbsp;&nbsp;5. Commit + update progress.md<br>
+          &nbsp;&nbsp;6. Output SESSION_DONE, stop
+        </div>
+        <div style="font-size:0.65rem; color:var(--text-muted); margin-top:0.3rem; border-top:1px solid #e2e8f0; padding-top:0.2rem;">
+          Outer shell loop restarts on exit:<br>
+          <code style="font-size:0.65rem; color:var(--accent-orange);">while true; do</code> claude -p "$(cat AGENT_PROMPT.md)" --max-turns 15 --dangerously-skip-permissions <code style="font-size:0.65rem; color:var(--accent-orange);">done</code>
+        </div>
+      </div>
+
+      <h3 style="font-size: 0.75rem; margin-top: 0.2rem;">plan.md &rarr; feature_list.json</h3>
+      <p style="font-size: 0.68rem; margin-bottom: 0.1rem;"><strong>plan.md</strong> (human writes: phases, rationale) &rarr; <strong>feature_list.json</strong> (agent updates: <code>"passes": true/false</code>)</p>
+      <p style="font-size: 0.65rem; color: var(--text-muted);"><strong>Why JSON?</strong> Markdown checkboxes get corrupted across context windows. JSON is unambiguous. <span style="color:var(--accent-blue);">(Lab 6: side-by-side walkthrough)</span></p>
+
+    </div>
+
+    <div class="slide-right">
+      <h3 style="font-size: 0.78rem;">Key Design Decisions (Anthropic)</h3>
+      <table class="compact" style="font-size: 0.65rem;">
+        <tr><th>Decision</th><th>Why</th></tr>
+        <tr><td><strong>plan.md</strong> (human-readable)</td><td>Approach, phases, rationale &mdash; the plan you already write</td></tr>
+        <tr><td><strong>feature_list.json</strong> (machine)</td><td>Derived from plan. Agent updates <code>passes</code>. JSON can&rsquo;t be corrupted.</td></tr>
+        <tr><td><strong>One feature per session</strong></td><td>Hard stop after one feature. Prevents context exhaustion.</td></tr>
+        <tr><td><strong>Git commits as checkpoints</strong></td><td>Agents can revert failed changes and recover</td></tr>
+        <tr><td><strong>Shell loop + --max-turns</strong></td><td>Auto restart. Requires Gold-tier safety (slide 10).</td></tr>
+      </table>
+
+      <h3 style="font-size: 0.78rem; margin-top: 0.4rem;">How It Differs from Ralph Wiggum</h3>
+      <!-- Audience just saw Ralph on slide 13 -->
+      <div style="display: flex; gap: 0.6rem; margin-top: 0.2rem; max-width: 92%;">
+        <div style="flex:1; background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%); border: 1px solid var(--accent-blue); border-radius: 8px; padding: 0.4rem 0.5rem;">
+          <div style="font-weight:700; color:var(--accent-blue); font-size:0.72rem; margin-bottom:0.15rem;">Overnight Harness</div>
+          <div style="font-size:0.68rem; color:var(--text-secondary); line-height:1.5;">
+            Shell loop <strong>restarts sessions</strong><br>
+            Fresh context each cycle<br>
+            Hours to days<br>
+            <strong style="color:var(--accent-green);">Survives overflow</strong> &mdash; that&rsquo;s the point
+          </div>
+        </div>
+        <div style="flex:1; background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%); border: 1px solid #f59e0b; border-radius: 8px; padding: 0.4rem 0.5rem;">
+          <div style="font-weight:700; color:#f59e0b; font-size:0.72rem; margin-bottom:0.15rem;">Ralph Wiggum Loop</div>
+          <div style="font-size:0.68rem; color:var(--text-secondary); line-height:1.5;">
+            Stop hook <strong>inside one session</strong><br>
+            Same context, sees its work<br>
+            Minutes to an hour<br>
+            <strong style="color:var(--accent-red);">No overflow survival</strong>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 0.82rem; margin-top: 0.5rem;">Running the Harness</h3>
+      <div style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.6;">
+        <p><strong>Three hooks make it work:</strong> <code>PreToolUse</code> blocks destructive commands, <code>PostToolUse</code> auto-lints after every edit, <code>Stop</code> forces continuation if criteria not met. <span style="font-size:0.68rem; color:var(--text-muted);">(14 lifecycle events total &mdash; <a href="https://code.claude.com/docs/en/hooks-guide">Hooks Guide</a>)</span></p>
+      </div>
+      <div style="margin-top: 0.35rem; padding: 0.4rem 0.6rem; background: #fef2f2; border-left: 3px solid var(--accent-red); border-radius: 0 8px 8px 0; font-size: 0.72rem; color: var(--text-secondary);">
+        <strong>When it goes wrong:</strong> Agent loops on a hard feature &rarr; <code>git log</code> in morning, rewrite spec or break up. Budget burn &rarr; <code>git revert</code> + <code>--max-turns</code> cap.
+      </div>
+
+      <div class="lab-box" style="margin-top: 0.5rem;">
+        <div>
+          <div class="lab-title"><span class="lab-num">LAB 6</span> Let&rsquo;s try: Set It and Forget It</div>
+          <div class="lab-tagline">Two features, two context windows, zero human intervention. You could be sleeping.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-refs">
+    <a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">Effective Harnesses for Long-Running Agents (Anthropic)</a> &nbsp;|&nbsp;
+    <a href="https://code.claude.com/docs/en/hooks-guide">Hooks Guide</a>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>This is Anthropic&rsquo;s own engineering pattern &mdash; not a community hack</li>
+      <li>Bridge from Ralph: &ldquo;Ralph for bounded tasks in one session. The harness for feature lists across many sessions.&rdquo;</li>
+      <li>The <code>TaskCompleted</code> hook prevents the #1 failure mode: agent declares &ldquo;done&rdquo; when it&rsquo;s not</li>
+      <li><strong>Notice:</strong> <code>--dangerously-skip-permissions</code> is only safe because we covered the safety architecture first (slides 7&ndash;10)</li>
+      <li><strong>Cost reality:</strong> Single overnight run typically $5&ndash;30 in API usage depending on complexity. The C compiler ($20K) was 2,000 sessions over two weeks.</li>
+      <li><strong>Bridge:</strong> &ldquo;You now know all three modes. Let&rsquo;s put them side by side.&rdquo;</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 15: Three Autonomy Modes (Recap + Comparison) -->
+<section class="slide">
+  <div class="journey-marker">
+    <span class="jm-item">Knowledge</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Safety</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item active active-autonomy">&#x25B8; Autonomy</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Scale</span>
+  </div>
+
+  <div class="slide-header">
+    <h2>You Now Have Four Modes &mdash; Here&rsquo;s When to Reach for Each One <span class="time-badge">2 min</span></h2>
+    <p class="subtitle">You now have three modes. Here&rsquo;s when to use each one.</p>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <div class="autonomy-staircase"></div>
+    </div>
+
+    <div class="slide-right">
+      <h3 style="font-size: 0.9rem;">When to Use Which Mode</h3>
+      <table class="compact" style="font-size: 0.72rem;">
+        <tr><th>Mode</th><th>Best For</th><th>You Are&hellip;</th><th>Key Mechanism</th></tr>
+        <tr><td><strong>Manual REPL</strong></td><td>Exploratory work, design decisions</td><td>Co-piloting each step</td><td>Default permissions</td></tr>
+        <tr style="background:#faf5ff;"><td style="color:var(--accent-purple);"><strong>FSD Steering</strong></td><td>Complex tasks, long builds</td><td>Watching, steering at boundaries</td><td><code>bypassPermissions</code> + CLAUDE.md nudges</td></tr>
+        <tr style="background:#fffbeb;"><td style="color:#f59e0b;"><strong>Ralph Wiggum</strong></td><td>Bounded phases, clear done criteria</td><td>Away briefly</td><td>Stop hook + completion promise</td></tr>
+        <tr style="background:#eff6ff;"><td style="color:var(--accent-blue);"><strong>Overnight Harness</strong></td><td>Feature lists, overnight runs</td><td>Sleeping</td><td>Shell loop + JSON state files</td></tr>
+      </table>
+
+      <div class="insight-box" style="margin-top: 0.6rem;">
+        <p style="font-size: 0.82rem;"><strong>Most of your time is FSD + Manual REPL. Ralph and Overnight are for special occasions.</strong></p>
+      </div>
+
+      <div style="margin-top: 0.5rem; padding: 0.5rem 0.7rem; background: linear-gradient(90deg, #f0fdf4 0%, #f8fafc 100%); border-left: 3px solid var(--accent-green); border-radius: 0 8px 8px 0;">
+        <p style="font-size: 0.75rem; color: var(--text-secondary);"><strong>The pattern:</strong> Start in Manual REPL to explore. Once you know what you want, switch to FSD. If the task is well-defined and you want to step away, use Ralph. For multi-session overnight runs, use the harness.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>This is the synthesis moment &mdash; 2 minutes max. The audience should feel &ldquo;OK, I know which tool to reach for.&rdquo;</li>
+      <li>Point at the staircase: &ldquo;Same graphic from slide 11. Now you know what&rsquo;s inside each box.&rdquo;</li>
+      <li>Emphasize: &ldquo;80% of your time will be FSD or Manual REPL. Ralph and Overnight are power tools for specific situations.&rdquo;</li>
+      <li><strong>Bridge:</strong> &ldquo;Once you&rsquo;ve mastered one agent, the natural question is: can I run multiple agents at the same time?&rdquo;</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 16: Three Levels of Parallelism -->
+<section class="slide">
+  <div class="journey-marker">
+    <span class="jm-item">Knowledge</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Safety</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item">Autonomy</span>
+    <span class="jm-sep">&rarr;</span>
+    <span class="jm-item active active-scale">&#x25B8; Scale</span>
+  </div>
+
+  <div class="slide-header">
+    <h2>From One Agent to Sixteen &mdash; Three Levels of Parallelism <span class="time-badge">10 min</span></h2>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <p style="font-size: 0.78rem; margin-bottom: 0.3rem;">The key question at each level: <strong>who coordinates the work?</strong></p>
+
+      <table class="compact-table" style="font-size: 0.70rem;">
+        <tr style="background: var(--bg-card);">
+          <th style="padding: 0.3rem 0.5rem; width: 22%;">Level</th>
+          <th style="padding: 0.3rem 0.5rem; width: 28%;">What it looks like</th>
+          <th style="padding: 0.3rem 0.5rem; width: 22%;">Who coordinates?</th>
+          <th style="padding: 0.3rem 0.5rem; width: 28%;">Status</th>
+        </tr>
+        <tr>
+          <td style="padding: 0.3rem 0.5rem;"><strong>1. Subagents</strong></td>
+          <td style="padding: 0.3rem 0.5rem;">One terminal, one conversation. You ask a question &mdash; Claude silently spawns helpers that research in parallel, then gives you one combined answer.</td>
+          <td style="padding: 0.3rem 0.5rem;"><strong>The agent</strong> (internally)</td>
+          <td style="padding: 0.3rem 0.5rem; color: var(--accent-green);"><strong>Stable, production</strong></td>
+        </tr>
+        <tr>
+          <td style="padding: 0.3rem 0.5rem;"><strong>2. Agent Teams</strong></td>
+          <td style="padding: 0.3rem 0.5rem;">Multiple Claude sessions on your machine. A &ldquo;lead&rdquo; agent spawns &ldquo;teammates,&rdquo; each with their own context window. They share a task list and can message each other.</td>
+          <td style="padding: 0.3rem 0.5rem;"><strong>A lead agent</strong> (delegates to peers)</td>
+          <td style="padding: 0.3rem 0.5rem; color: var(--accent-orange);"><strong>Experimental</strong> &mdash; research preview since Feb&nbsp;5,&nbsp;2026. Known bugs.</td>
+        </tr>
+        <tr>
+          <td style="padding: 0.3rem 0.5rem;"><strong>3. Independent</strong></td>
+          <td style="padding: 0.3rem 0.5rem;">Separate terminals, git worktrees, or even separate machines. Each agent works on its own branch. No built-in coordination at all.</td>
+          <td style="padding: 0.3rem 0.5rem;"><strong>You</strong> (merge manually)</td>
+          <td style="padding: 0.3rem 0.5rem; color: var(--accent-green);"><strong>Stable</strong> &mdash; just git</td>
+        </tr>
+      </table>
+
+      <div style="margin-top: 0.35rem; padding: 0.3rem 0.5rem; background: linear-gradient(90deg, #fefce8 0%, #f8fafc 100%); border-left: 3px solid var(--accent-orange); border-radius: 0 8px 8px 0;">
+        <p style="font-size: 0.68rem;"><strong>Honest take on Level 2:</strong> Agent Teams shipped Feb 2026 as Anthropic&rsquo;s official answer to community tools like <a href="https://github.com/Jedward23/Tmux-Orchestrator" style="color:var(--accent-blue);">Tmux-Orchestrator</a>. It works, but Delegate mode is currently broken (<a href="https://github.com/anthropics/claude-code/issues/25037" style="color:var(--accent-blue);">#25037</a>) and it&rsquo;s expensive. Most teams will get the best ROI from Level 1 + Level 3.</p>
+      </div>
+
+      <div style="margin-top: 0.3rem; font-size: 0.72rem; color: var(--text-secondary);">
+        <strong>Our recommendation:</strong> Start with subagents (Level 1). When you need isolation, use git worktrees (Level 3). Watch Agent Teams mature &mdash; it&rsquo;s the future, but not ready for production yet.
+      </div>
+    </div>
+
+    <div class="slide-right">
+      <h3 style="font-size: 0.82rem; color: var(--accent-blue);">Case Study: The C Compiler &mdash; 16 Parallel Agents</h3>
+      <p style="font-size: 0.75rem;">Anthropic&rsquo;s Nicholas Carlini (Feb 2026): <strong>16 Claude agents built a 100,000-line Rust-based C compiler</strong> capable of compiling the Linux kernel.</p>
+      <p style="font-size: 0.75rem;">Cost: <strong>~$20,000</strong> across <strong>~2,000 sessions</strong>.</p>
+      <p style="font-size: 0.65rem; margin-top: 0.15rem;"><a href="https://www.anthropic.com/engineering/building-c-compiler" style="color: var(--accent-blue);">anthropic.com/engineering/building-c-compiler</a></p>
+
+      <h3 style="font-size: 0.78rem; margin-top: 0.4rem;">Deliberately Minimal Orchestration</h3>
+      <pre style="font-size: 0.65rem; padding: 0.4rem 0.6rem;"><span style="color:#f97316;">while true;</span> <span style="color:#f97316;">do</span>
+  claude --dangerously-skip-permissions \
+    -p <span style="color:#86efac;">"$(cat AGENT_PROMPT.md)"</span>
+<span style="color:#f97316;">done</span></pre>
+      <p style="font-size: 0.65rem; color: var(--text-muted);">Agents self-coordinated through file-based locking and git as mutual exclusion.</p>
+
+      <h3 style="font-size: 0.78rem; margin-top: 0.4rem;">Key Lessons</h3>
+      <ol style="font-size: 0.75rem; line-height: 1.65; margin-left: 1rem;">
+        <li><strong>Invest in test infrastructure, not orchestration</strong> &mdash; tests must be &ldquo;nearly perfect&rdquo;</li>
+        <li><strong>Design for agents, not humans</strong> &mdash; extensive READMEs, progress files, grep-friendly logs</li>
+        <li><strong>Minimize test output in context</strong> &mdash; important info goes to files, not stdout</li>
+        <li><strong>Handle time blindness</strong> &mdash; agents &ldquo;will happily spend hours running tests&rdquo;</li>
+      </ol>
+
+      <div class="lab-box" style="margin-top: 0.5rem;">
+        <div>
+          <div class="lab-title"><span class="lab-num">LAB 7</span> Let&rsquo;s try: Three Agents Walk Into a Codebase</div>
+          <div class="lab-tagline">Parallel investigations, 30 seconds, and your context barely moved.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide-refs">
+    <a href="https://www.anthropic.com/engineering/building-c-compiler">C Compiler Case Study (Anthropic)</a> &nbsp;|&nbsp;
+    <a href="https://code.claude.com/docs/en/agent-teams">Agent Teams Docs</a> &nbsp;|&nbsp;
+    <a href="https://code.claude.com/docs/en/sub-agents">Subagents Docs</a> &nbsp;|&nbsp;
+    <a href="https://github.com/Jedward23/Tmux-Orchestrator">Tmux-Orchestrator (community)</a>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>Agent Teams is experimental (Feb 2026) &mdash; useful but expect rough edges</li>
+      <li>The C compiler case study is the best-documented large-scale example &mdash; show the Anthropic blog post</li>
+      <li>&ldquo;Invest in tests, not orchestration&rdquo; is counterintuitive but critical</li>
+      <li>Start with subagents (Level 1) before trying teams or independent agents</li>
+      <li><strong>Bridge:</strong> &ldquo;We&rsquo;ve covered knowledge, safety, autonomy, and scale. Let&rsquo;s put the full picture together.&rdquo;</li>
+      <li>Reference: <a href="https://www.anthropic.com/engineering/building-c-compiler">C Compiler blog</a>, <a href="https://code.claude.com/docs/en/agent-teams">Agent Teams docs</a></li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 17: The Full Stack Summary -->
+<section class="slide">
+  <div class="slide-header">
+    <h2>You Came With 10x &mdash; You&rsquo;re Leaving With the Full Stack <span class="time-badge">5 min</span></h2>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <div style="border: 2px solid #f59e0b; border-radius: 10px; overflow: hidden;">
+        <div style="background: linear-gradient(90deg, #fef3c7, #fffbeb); padding: 0.35rem 0.7rem; border-bottom: 2px solid #f59e0b;">
+          <strong style="color: #f59e0b; font-size: 0.78rem;">YOUR WORKFLOW (Advanced)</strong>
+        </div>
+        <div style="padding: 0.4rem 0.7rem; font-size: 0.65rem; line-height: 1.5;">
+          <div style="border-left: 3px solid var(--accent-red); padding: 0.25rem 0.5rem; margin-bottom: 0.3rem; border-radius: 0 4px 4px 0; background:#fef2f208;">
+            <strong style="color: var(--accent-red);">1. ARCHITECTURE</strong> <span style="color:var(--text-muted);">(once per project)</span><br>
+            <span style="font-size:0.65rem;">&nbsp;&nbsp;&#x25B8; Secrets in CI/CD, branch protection &nbsp;&#x25B8; Sandbox + hooks configured &nbsp;&#x25B8; Checklist: all green</span>
+          </div>
+          <div style="border-left: 3px solid var(--accent-blue); padding: 0.25rem 0.5rem; margin-bottom: 0.3rem; border-radius: 0 4px 4px 0;">
+            <strong style="color: var(--accent-blue);">2. KNOWLEDGE</strong> <span style="color:var(--text-muted);">(compounds over time)</span><br>
+            <span style="font-size:0.65rem;">&nbsp;&nbsp;&#x25B8; 6-layer memory hierarchy &nbsp;&#x25B8; Learning extraction &nbsp;&#x25B8; Skills &nbsp;&#x25B8; MCP servers</span>
+          </div>
+          <div style="border-left: 3px solid var(--accent-purple); padding: 0.25rem 0.5rem; margin-bottom: 0.3rem; border-radius: 0 4px 4px 0;">
+            <strong style="color: var(--accent-purple);">3. OPERATE</strong> <span style="color:var(--text-muted);">(per feature)</span><br>
+            <span style="font-size:0.65rem;">&nbsp;&nbsp;&#x25B8; FSD mode &nbsp;&#x25B8; Ralph Wiggum Loop &nbsp;&#x25B8; Long-running harness &nbsp;&#x25B8; Subagents</span>
+          </div>
+          <div style="border-left: 3px solid var(--accent-green); padding: 0.25rem 0.5rem; border-radius: 0 4px 4px 0;">
+            <strong style="color: var(--accent-green);">4. SCALE</strong> <span style="color:var(--text-muted);">(when ready)</span><br>
+            <span style="font-size:0.65rem;">&nbsp;&nbsp;&#x25B8; Agent Teams &nbsp;&#x25B8; Independent agents on devices &nbsp;&#x25B8; You are the integration point</span>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 0.85rem; margin-top: 0.4rem;">What Each Layer Adds (Honest Assessment)</h3>
+      <table class="compact" style="font-size: 0.68rem;">
+        <tr><th>Layer</th><th>What It Actually Changes</th><th>Status</th></tr>
+        <tr><td>Your skill + AI assistance</td><td>Faster code generation, fewer lookups</td><td style="color:var(--accent-green);">&#x2713; You have this</td></tr>
+        <tr><td>+ Structured planning</td><td>Less rework, fewer wrong turns</td><td style="color:var(--accent-green);">&#x2713; You have this</td></tr>
+        <tr><td>+ Full memory stack (6 layers, skills, MCP)</td><td>Less rediscovery, external tool access</td><td style="color:var(--accent-blue);">Today&rsquo;s workshop</td></tr>
+        <tr><td>+ Autonomy modes (FSD, Ralph, harness)</td><td>Agent works while you don&rsquo;t</td><td style="color:var(--accent-blue);">Today&rsquo;s workshop</td></tr>
+        <tr><td>+ Parallel agents (teams, independent)</td><td>Multiple features simultaneously</td><td style="color:var(--accent-blue);">Today&rsquo;s workshop</td></tr>
+      </table>
+      <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.3rem;">No multiplier numbers &mdash; they depend on your project, codebase complexity, and starting point. Anthropic 2026 Trends Report: 0&ndash;20% fully delegatable. Each layer increases what you can delegate.</p>
+    </div>
+
+    <div class="slide-right">
+      <h3 style="font-size: 0.9rem;">The Real Test</h3>
+      <blockquote style="font-size: 0.92rem;">&ldquo;If the agent went completely rogue right now, what&rsquo;s the worst that could happen?&rdquo;</blockquote>
+
+      <table style="font-size: 0.82rem; margin-top: 0.6rem;">
+        <tr><th>Your Answer</th><th>What It Means</th></tr>
+        <tr><td style="background:#fef2f2;">&ldquo;It could steal my AWS keys and delete production&rdquo;</td><td style="background:#fef2f2;">You have an <strong>architecture problem</strong> &mdash; go back to slide 8</td></tr>
+        <tr><td style="background:#f0fdf4;">&ldquo;It could mess up a feature branch that I&rsquo;d review anyway&rdquo;</td><td style="background:#f0fdf4;"><strong>You&rsquo;re safe.</strong> Crank up the autonomy.</td></tr>
+      </table>
+
+      <h3 style="font-size: 0.9rem; margin-top: 0.8rem;">Your Next Steps</h3>
+      <div style="font-size: 0.82rem; line-height: 1.7;">
+        <div style="padding: 0.4rem 0; border-bottom: 1px solid #f1f5f9;">
+          <strong style="color: var(--accent-blue);">This week:</strong> Run the safe autonomy checklist (slide 10). Move one secret from <code>.env</code> to CI/CD. Set up one PreToolUse hook.
+        </div>
+        <div style="padding: 0.4rem 0; border-bottom: 1px solid #f1f5f9;">
+          <strong style="color: var(--accent-purple);">This month:</strong> Build one skill from your most painful rediscovery. Try one overnight run with the initializer + coding agent pattern.
+        </div>
+        <div style="padding: 0.4rem 0;">
+          <strong style="color: var(--accent-green);">This quarter:</strong> Try Agent Teams on a cross-layer feature. Set up a second sandbox device.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>This is the capstone &mdash; tie all the threads together</li>
+      <li><strong>Note the reorder:</strong> We taught Knowledge before Architecture (learning order). The diagram shows recommended <em>setup order</em> &mdash; architecture first.</li>
+      <li>The &ldquo;real test&rdquo; question lands hard after the safety slides</li>
+      <li>The next steps are concrete and achievable</li>
+      <li>&ldquo;Even just the memory stack + overnight loops will change how you work &mdash; parallel agents can wait&rdquo;</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ============================================================ -->
+
+<!-- SLIDE 18: Q&A + Resources -->
+<section class="slide">
+  <div class="slide-header">
+    <h2>Q&amp;A + Resources <span class="time-badge">5 min</span></h2>
+  </div>
+
+  <div class="slide-content">
+    <div class="slide-left">
+      <h3 style="font-size: 0.85rem;">Key Takeaways</h3>
+      <div style="font-size: 0.78rem; line-height: 1.7;">
+        <div style="padding: 0.25rem 0; border-bottom: 1px solid #f1f5f9;"><span style="color:var(--accent-blue);font-weight:700;">1.</span> <strong>Context engineering &gt; prompt engineering</strong> &mdash; structure what the agent sees, not just what you type</div>
+        <div style="padding: 0.25rem 0; border-bottom: 1px solid #f1f5f9;"><span style="color:var(--accent-blue);font-weight:700;">2.</span> <strong>Six layers of memory</strong> &mdash; use all of them, especially auto-memory, path-scoped rules, and skills</div>
+        <div style="padding: 0.25rem 0; border-bottom: 1px solid #f1f5f9;"><span style="color:var(--accent-blue);font-weight:700;">3.</span> <strong>MCP extends the agent&rsquo;s reach</strong> &mdash; connect it to browsers, databases, APIs without custom integration code</div>
+        <div style="padding: 0.25rem 0; border-bottom: 1px solid #f1f5f9;"><span style="color:var(--accent-blue);font-weight:700;">4.</span> <strong>Architecture &gt; supervision</strong> &mdash; make autonomy safe by design, not by clicking &ldquo;approve&rdquo;</div>
+        <div style="padding: 0.25rem 0; border-bottom: 1px solid #f1f5f9;"><span style="color:var(--accent-blue);font-weight:700;">5.</span> <strong>Scale deliberately</strong> &mdash; subagents first, agent teams next, independent agents when ready</div>
+        <div style="padding: 0.25rem 0;"><span style="color:var(--accent-blue);font-weight:700;">6.</span> <strong>Invest in tests, not orchestration</strong> &mdash; the C compiler lesson applies to everyone</div>
+      </div>
+
+      <div class="insight-box" style="margin-top: 0.6rem;">
+        <p style="font-size: 0.82rem;"><strong>&ldquo;The gap between where you are and where you could be isn&rsquo;t about better models. It&rsquo;s about better systems around the model.&rdquo;</strong></p>
+      </div>
+    </div>
+
+    <div class="slide-right">
+      <h3 style="font-size: 0.8rem;">Anthropic Engineering (Must-Read)</h3>
+      <ul style="font-size: 0.68rem; margin-left: 0.8rem; line-height: 1.5;">
+        <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective Context Engineering</a></li>
+        <li><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">Harnesses for Long-Running Agents</a></li>
+        <li><a href="https://www.anthropic.com/engineering/building-c-compiler">Building a C Compiler with Parallel Claudes</a></li>
+        <li><a href="https://www.anthropic.com/engineering/claude-code-sandboxing">Claude Code Sandboxing Architecture</a></li>
+      </ul>
+
+      <h3 style="font-size: 0.8rem; margin-top: 0.3rem;">Documentation</h3>
+      <ul style="font-size: 0.68rem; margin-left: 0.8rem; line-height: 1.5;">
+        <li><a href="https://code.claude.com/docs/en/memory">Claude Code Memory</a> &mdash; the 6-layer hierarchy</li>
+        <li><a href="https://code.claude.com/docs/en/hooks">Claude Code Hooks</a> &mdash; 14 lifecycle events</li>
+        <li><a href="https://code.claude.com/docs/en/agent-teams">Claude Code Agent Teams</a></li>
+        <li><a href="https://agentskills.io/specification">Agent Skills Specification</a> &mdash; the open standard</li>
+      </ul>
+
+      <h3 style="font-size: 0.8rem; margin-top: 0.3rem;">Apra Labs (Public Repos)</h3>
+      <ul style="font-size: 0.68rem; margin-left: 0.8rem; line-height: 1.5;">
+        <li><a href="https://github.com/Apra-Labs/claude-bitbucket-devops-skill">claude-bitbucket-devops-skill</a></li>
+        <li><a href="https://github.com/Apra-Labs/ApraPipes/tree/main/.claude/skills/aprapipes-devops">ApraPipes DevOps Skill</a></li>
+        <li><a href="https://github.com/Apra-Labs/browser-snapshot-agent">browser-snapshot-agent</a> &mdash; MCP server</li>
+      </ul>
+
+      <h3 style="font-size: 0.8rem; margin-top: 0.3rem;">Community &amp; Safety</h3>
+      <ul style="font-size: 0.68rem; margin-left: 0.8rem; line-height: 1.5;">
+        <li><a href="https://github.com/hesreallyhim/awesome-claude-code">awesome-claude-code</a></li>
+        <li><a href="https://github.com/VoltAgent/awesome-agent-skills">awesome-agent-skills</a></li>
+        <li><a href="https://github.com/trailofbits/claude-code-config">Trail of Bits claude-code-config</a></li>
+        <li><a href="https://www.docker.com/blog/docker-sandboxes-a-new-approach-for-coding-agent-safety/">Docker Sandboxes</a></li>
+        <li><a href="https://github.com/anthropic-experimental/sandbox-runtime">sandbox-runtime (open source)</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="speaker-notes">
+    <h3>Speaker Notes</h3>
+    <ul>
+      <li>Open floor for Q&amp;A</li>
+      <li>End with: &ldquo;The gap between where you are and where you could be isn&rsquo;t about better models. It&rsquo;s about better systems around the model &mdash; and now you know what those systems are.&rdquo;</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- Navigation -->
+<nav class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">&larr; Previous</button>
+  <button class="nav-btn secondary" onclick="openSpeakerNotes()">&#x1F4DD; Speaker Notes</button>
+  <div class="nav-progress" id="navDots"></div>
+  <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next &rarr;</button>
+</nav>
+
+<div class="slide-number" id="slideNumber"></div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlSlide = parseInt(urlParams.get('slide'));
+  const hideNav = urlParams.get('hide-nav') === '1';
+  let currentSlide = (urlSlide && urlSlide >= 1) ? urlSlide : 1;
+  let speakerWindow = null;
+
+  if (hideNav) {
+    document.querySelector('.nav').style.display = 'none';
+    document.body.style.overflow = 'visible';
+    document.querySelectorAll('.slide').forEach(s => {
+      s.style.overflow = 'visible';
+      s.style.height = 'auto';
+      s.style.minHeight = '100vh';
+      s.style.paddingBottom = '35px';
+    });
+    document.querySelectorAll('.slide-content').forEach(c => {
+      c.style.overflow = 'visible';
+    });
+  }
+
+  const allSlides = document.querySelectorAll('.slide');
+  const totalSlides = allSlides.length;
+  if (currentSlide > totalSlides) currentSlide = 1;
+  allSlides.forEach((s, i) => { s.setAttribute('data-slide', i + 1); });
+
+  function showSlide(n) {
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.nav-dot');
+    if (n > totalSlides) currentSlide = 1;
+    if (n < 1) currentSlide = totalSlides;
+    slides.forEach(s => s.classList.remove('active'));
+    dots.forEach(d => d.classList.remove('active'));
+    slides[currentSlide - 1].classList.add('active');
+    dots[currentSlide - 1].classList.add('active');
+    document.getElementById('slideNumber').textContent = currentSlide + ' / ' + totalSlides;
+    document.getElementById('prevBtn').disabled = currentSlide === 1;
+    document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+    const url = new URL(window.location);
+    url.searchParams.set('slide', currentSlide);
+    history.replaceState(null, '', url);
+    updateSpeakerNotes();
+  }
+
+  function changeSlide(n) { currentSlide += n; showSlide(currentSlide); }
+  function goToSlide(n) { currentSlide = n; showSlide(currentSlide); }
+
+  // GIF pause/resume — freezes current frame on canvas, clean with no overlay
+  function toggleGif(wrap) {
+    var img = wrap.querySelector('img');
+    var hint = wrap.querySelector('.gif-hint');
+    var canvas = wrap.querySelector('canvas');
+    var paused = wrap.getAttribute('data-paused') === 'true';
+    if (paused) {
+      if (canvas) canvas.remove();
+      img.style.display = 'block';
+      wrap.setAttribute('data-paused', 'false');
+      if (hint) hint.textContent = 'Click to pause';
+    } else {
+      canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      canvas.style.cssText = img.style.cssText;
+      canvas.style.display = 'block';
+      canvas.getContext('2d').drawImage(img, 0, 0);
+      img.parentNode.insertBefore(canvas, img);
+      img.style.display = 'none';
+      wrap.setAttribute('data-paused', 'true');
+      if (hint) hint.textContent = 'Click to resume';
+    }
+  }
+
+  // Render escalation staircase into all .autonomy-staircase containers
+  function renderStaircases() {
+    var modes = [
+      { emoji: '&#x1F441;', name: 'FSD Steering', desc: "You're watching", time: 'Minutes to hours', color: 'var(--accent-purple)', bg: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)', h: '6rem' },
+      { emoji: '&#x1F6B6;', name: 'Ralph Wiggum Loop', desc: 'You step away', time: 'Minutes to ~1 hour', color: '#f59e0b', bg: 'linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%)', h: '9rem' },
+      { emoji: '&#x1F634;', name: 'Overnight Harness', desc: "You're sleeping", time: 'Hours to days', color: 'var(--accent-blue)', bg: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)', h: '12rem' }
+    ];
+    document.querySelectorAll('.autonomy-staircase').forEach(function(el) {
+      var boxes = modes.map(function(m) {
+        return '<div style="flex:1; background:' + m.bg + '; border:2px solid ' + m.color + '; border-radius:10px; padding:0.6rem; text-align:center; height:' + m.h + '; display:flex; flex-direction:column; justify-content:flex-end;">' +
+          '<div style="font-size:1.8rem;">' + m.emoji + '</div>' +
+          '<div style="font-weight:700; font-size:0.85rem; color:' + m.color + '; margin-top:0.2rem;">' + m.name + '</div>' +
+          '<div style="font-size:0.72rem; color:var(--text-secondary); margin-top:0.15rem;">' + m.desc + '</div>' +
+          '<div style="font-size:0.65rem; color:var(--text-muted); margin-top:0.1rem;">' + m.time + '</div></div>';
+      }).join('');
+      el.innerHTML = '<div style="display:flex; align-items:flex-end; gap:0.5rem; max-width:90%; margin:0 auto;">' + boxes + '</div>' +
+        '<div style="text-align:center; margin-top:0.5rem;">' +
+        '<div style="font-size:0.72rem; color:var(--text-muted);">Your attention &nbsp; <strong>HIGH</strong> &nbsp;&rarr;&rarr;&rarr;&nbsp; <strong>LOW</strong></div>' +
+        '<div style="font-size:0.72rem; color:var(--text-muted);">Agent autonomy &nbsp; <strong>LOW</strong> &nbsp;&rarr;&rarr;&rarr;&nbsp; <strong>HIGH</strong></div></div>';
+    });
+  }
+  renderStaircases();
+
+  // All external links open in new tab
+  document.querySelectorAll('a[href^="http"]').forEach(function(a) { a.setAttribute('target', '_blank'); });
+
+  const dotsContainer = document.getElementById('navDots');
+  for (let i = 1; i <= totalSlides; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot' + (i === 1 ? ' active' : '');
+    dot.onclick = () => goToSlide(i);
+    dotsContainer.appendChild(dot);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+    else if (e.key === 'ArrowLeft') { changeSlide(-1); }
+    else if (e.key === 'n' || e.key === 'N') { openSpeakerNotes(); }
+  });
+
+  // Speaker Notes
+  let presentationStartTime = null;
+  let slideStartTime = null;
+  let timerInterval = null;
+  let slideBudgets = [];
+  let cumulativeBudgets = [];
+
+  function initializeBudgets() {
+    slideBudgets = [];
+    cumulativeBudgets = [];
+    let cumulative = 0;
+    document.querySelectorAll('.slide').forEach((slide) => {
+      const badge = slide.querySelector('.time-badge');
+      let mins = 0;
+      if (badge) {
+        const match = badge.textContent.match(/(\d+)/);
+        if (match) mins = parseInt(match[1]);
+      }
+      slideBudgets.push(mins);
+      cumulative += mins;
+      cumulativeBudgets.push(cumulative);
+    });
+  }
+
+  initializeBudgets();
+
+  function openSpeakerNotes() {
+    if (speakerWindow && !speakerWindow.closed) { speakerWindow.focus(); return; }
+    if (!presentationStartTime) presentationStartTime = new Date();
+    slideStartTime = new Date();
+    const totalBudget = cumulativeBudgets[cumulativeBudgets.length - 1] || 92;
+
+    speakerWindow = window.open('', 'SpeakerNotes',
+      'width=550,height=750,left=100,top=100,menubar=no,toolbar=no,location=no,status=no');
+
+    speakerWindow.document.write(`
+      <!DOCTYPE html>
+      <html><head><title>Speaker Notes</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1e293b; color: #e2e8f0; padding: 20px; line-height: 1.6; }
+        .timer-widget { background: #0f172a; border-radius: 12px; padding: 15px 20px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .timer-box { text-align: center; }
+        .timer-label { font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .timer-value { font-size: 2.5rem; font-weight: 700; font-family: 'SF Mono', Consolas, monospace; }
+        .timer-value.total { color: #22d3ee; }
+        .timer-value.slide { color: #4ade80; }
+        .timer-budget { font-size: 0.9rem; color: #64748b; margin-top: 5px; }
+        .timer-over { color: #f87171 !important; }
+        .reset-btn { background: #334155; color: #94a3b8; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; margin-top: 10px; }
+        .reset-btn:hover { background: #475569; color: #e2e8f0; }
+        h3 { color: #fbbf24; font-size: 1.1rem; margin: 15px 0 10px 0; }
+        #slideTitle { color: #22d3ee; font-size: 1.4rem; margin-bottom: 15px; }
+        #slideNum { color: #94a3b8; font-size: 1rem; margin-bottom: 8px; }
+        #notes { font-size: 1.1rem; line-height: 1.7; }
+        #notes ul { margin-left: 20px; }
+        #notes li { margin-bottom: 10px; }
+        #notes strong { color: #fbbf24; }
+        .nav-hint { position: fixed; bottom: 15px; left: 20px; right: 20px; color: #64748b; font-size: 0.85rem; text-align: center; }
+        kbd { background: #334155; padding: 3px 8px; border-radius: 4px; font-family: monospace; }
+      </style></head><body>
+        <div class="timer-widget">
+          <div class="timer-box">
+            <div class="timer-label">Presentation</div>
+            <div class="timer-value total" id="totalTime">00:00</div>
+            <div class="timer-budget" id="cumulativeBudget">Target by slide 1: 0 min</div>
+            <button class="reset-btn" onclick="window.opener.resetPresentationTimer()">Reset All</button>
+          </div>
+          <div class="timer-box">
+            <div class="timer-label">This Slide</div>
+            <div class="timer-value slide" id="slideTime">00:00</div>
+            <div class="timer-budget" id="slideBudget">Budget: &mdash;</div>
+          </div>
+        </div>
+        <div id="slideNum">Slide 1 / ${totalSlides}</div>
+        <div id="slideTitle">Loading...</div>
+        <h3>Speaker Notes</h3>
+        <div id="notes">Loading notes...</div>
+        <div class="nav-hint"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> navigate &middot; <kbd>N</kbd> toggle notes</div>
+      </body></html>
+    `);
+    speakerWindow.document.close();
+    updateSpeakerNotes();
+    startTimers();
+  }
+
+  function startTimers() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(updateTimers, 1000);
+  }
+
+  function updateTimers() {
+    if (!speakerWindow || speakerWindow.closed) { clearInterval(timerInterval); return; }
+    const now = new Date();
+    if (presentationStartTime) {
+      const totalSec = Math.floor((now - presentationStartTime) / 1000);
+      const totalMin = Math.floor(totalSec / 60);
+      const totalRemSec = totalSec % 60;
+      const totalStr = String(totalMin).padStart(2, '0') + ':' + String(totalRemSec).padStart(2, '0');
+      const cumulativeBudget = cumulativeBudgets[currentSlide - 1] || 0;
+      try {
+        const el = speakerWindow.document.getElementById('totalTime');
+        el.textContent = totalStr;
+        el.classList.toggle('timer-over', totalMin >= cumulativeBudget);
+      } catch(e) {}
+    }
+    if (slideStartTime) {
+      const slideSec = Math.floor((now - slideStartTime) / 1000);
+      const slideMin = Math.floor(slideSec / 60);
+      const slideRemSec = slideSec % 60;
+      const slideStr = String(slideMin).padStart(2, '0') + ':' + String(slideRemSec).padStart(2, '0');
+      const slideBudget = slideBudgets[currentSlide - 1] || 0;
+      try {
+        const el = speakerWindow.document.getElementById('slideTime');
+        el.textContent = slideStr;
+        if (slideBudget > 0) el.classList.toggle('timer-over', slideMin >= slideBudget);
+      } catch(e) {}
+    }
+  }
+
+  function resetPresentationTimer() {
+    presentationStartTime = new Date();
+    slideStartTime = new Date();
+  }
+
+  function updateSpeakerNotes() {
+    if (!speakerWindow || speakerWindow.closed) return;
+    slideStartTime = new Date();
+    const currentSlideEl = document.querySelector('.slide.active');
+    const notesEl = currentSlideEl.querySelector('.speaker-notes');
+    const titleEl = currentSlideEl.querySelector('h1, h2');
+    const title = titleEl ? titleEl.textContent.replace(/\d+ min$/, '').trim() : 'Slide ' + currentSlide;
+    const notes = notesEl ? notesEl.innerHTML : '<p>No speaker notes for this slide.</p>';
+    const slideBudget = slideBudgets[currentSlide - 1] || 0;
+    const cumulativeBudget = cumulativeBudgets[currentSlide - 1] || 0;
+    try {
+      speakerWindow.document.getElementById('slideNum').textContent = 'Slide ' + currentSlide + ' / ' + totalSlides;
+      speakerWindow.document.getElementById('slideTitle').textContent = title;
+      speakerWindow.document.getElementById('notes').innerHTML = notes.replace('<h3>Speaker Notes</h3>', '');
+      speakerWindow.document.getElementById('slideBudget').textContent = 'Budget: ' + (slideBudget > 0 ? slideBudget + ' min' : '\u2014');
+      speakerWindow.document.getElementById('cumulativeBudget').textContent = 'Target by slide ' + currentSlide + ': ' + cumulativeBudget + ' min';
+      speakerWindow.document.getElementById('slideTime').classList.remove('timer-over');
+      if (presentationStartTime) {
+        const totalMin = Math.floor((new Date() - presentationStartTime) / 1000 / 60);
+        const totalEl = speakerWindow.document.getElementById('totalTime');
+        totalEl.classList.toggle('timer-over', totalMin >= cumulativeBudget);
+      }
+    } catch (e) {}
+  }
+
+  setInterval(() => { if (speakerWindow && speakerWindow.closed) speakerWindow = null; }, 1000);
+  showSlide(currentSlide);
+</script>
+
+</body>
+</html>

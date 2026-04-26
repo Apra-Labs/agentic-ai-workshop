@@ -1,0 +1,15 @@
+{
+    "window.zoomLevel": 1.5,
+    "terminal.integrated.fontSize": 18,
+    "markdown.preview.fontSize": 18,
+    "workbench.colorTheme": "Default Light+",
+    "workbench.startupEditor": "none",
+    "editor.fontSize": 18,
+    "editor.minimap.enabled": false,
+    "editor.wordWrap": "on",
+    "breadcrumbs.enabled": false,
+    "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "files.autoSave": "afterDelay",
+    "markdown-preview-enhanced.enablePreviewZenMode": true,
+    "workbench.editor.enablePreview": false
+}

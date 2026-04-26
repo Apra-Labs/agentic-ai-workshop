@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab Materials — Agentic AI Workshop (Advanced)</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    line-height: 1.6;
+    color: #1f2328;
+    font-size: 16px;
+  }
+  h1 { border-bottom: 2px solid #d0d7de; padding-bottom: 0.5rem; }
+  h2 { border-bottom: 1px solid #d0d7de; padding-bottom: 0.4rem; margin-top: 2rem; }
+  h3 { margin-top: 1.5rem; }
+  code {
+    background: #f6f8fa;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  pre {
+    background: #f6f8fa;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    border: 1px solid #d0d7de;
+  }
+  pre code { background: none; padding: 0; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+  }
+  th, td {
+    border: 1px solid #d0d7de;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+  }
+  th { background: #f6f8fa; font-weight: 600; }
+  blockquote {
+    border-left: 4px solid #d0d7de;
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    color: #57606a;
+    background: #f6f8fa;
+  }
+  a { color: #0969da; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  hr { border: none; border-top: 1px solid #d0d7de; margin: 2rem 0; }
+  strong { font-weight: 600; }
+</style>
+</head>
+<body>
+<h1 id="lab-materials-agentic-ai-workshop-advanced">Lab Materials — Agentic AI Workshop (Advanced)</h1>
+<p><strong>Workshop:</strong> Agentic AI for Software Development — Advanced
+<strong>Author:</strong> Akhil Kumar, CEO &amp; Co-founder, Apra Labs
+<strong>Prerequisite:</strong> Basic workshop + hands-on agentic AI experience</p>
+<p>These labs accompany the live demos in the workshop. Each lab gives you exact steps to follow along or try on your own.</p>
+<h2 id="contents">Contents</h2>
+<ul>
+<li><a href="#prerequisites--setup">Prerequisites &amp; Setup</a></li>
+<li><a href="#lab-1-the-memory-stack-in-action">Lab 1: The Memory Stack in Action</a> — 6-layer memory hierarchy, auto-memory, learning extraction</li>
+<li><a href="#lab-2-skills--subagents">Lab 2: Skills &amp; Subagents</a> — progressive disclosure, domain knowledge, subagent isolation</li>
+<li><a href="#lab-3-mcp--browser-snapshot">Lab 3: MCP — Browser Snapshot</a> — extending agent capabilities with MCP servers</li>
+<li><a href="#lab-4-hooks-that-bite">Lab 4: Hooks That Bite</a> — tiered safety hooks, auto-linting, PreToolUse/PostToolUse</li>
+<li><a href="#lab-5-the-ralph-wiggum-loop">Lab 5: The Ralph Wiggum Loop</a> — bounded autonomy with goal, promise, and limit</li>
+<li><a href="#lab-6-the-overnight-harness">Lab 6: The Overnight Harness</a> — multi-context-window autonomy, state files, shell loop</li>
+<li><a href="#lab-7-subagents-in-parallel">Lab 7: Subagents in Parallel</a> — parallel investigations, context isolation</li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#quick-reference-files-used-per-lab">Quick Reference: Files Used Per Lab</a></li>
+</ul>
+<hr />
+<h2 id="prerequisites-setup">Prerequisites &amp; Setup</h2>
+<p>Complete these steps <strong>before the workshop</strong>. Budget 15-20 minutes.</p>
+<h3 id="1-required-software">1. Required Software</h3>
+<p>Install each tool if the check command fails. Pick the command for your OS.</p>
+<p><strong>Node.js v20+</strong> — check: <code>node --version</code></p>
+<table>
+<thead>
+<tr>
+<th>OS</th>
+<th>Install command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>macOS</td>
+<td><code>brew install node@20</code></td>
+</tr>
+<tr>
+<td>Ubuntu/Debian</td>
+<td><code>curl -fsSL https://deb.nodesource.com/setup_20.x \| sudo -E bash - &amp;&amp; sudo apt-get install -y nodejs</code></td>
+</tr>
+<tr>
+<td>Windows</td>
+<td>Download installer from <a href="https://nodejs.org/">nodejs.org</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Git</strong> — check: <code>git --version</code></p>
+<table>
+<thead>
+<tr>
+<th>OS</th>
+<th>Install command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>macOS</td>
+<td><code>brew install git</code></td>
+</tr>
+<tr>
+<td>Ubuntu/Debian</td>
+<td><code>sudo apt-get install git</code></td>
+</tr>
+<tr>
+<td>Windows</td>
+<td>Download from <a href="https://git-scm.com/">git-scm.com</a> (includes Git Bash)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Claude Code</strong> — check: <code>claude --version</code></p>
+<pre><code class="language-bash">npm install -g @anthropic-ai/claude-code
+</code></pre>
+<p><strong>jq</strong> (needed for Lab 4) — check: <code>jq --version</code></p>
+<table>
+<thead>
+<tr>
+<th>OS</th>
+<th>Install command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>macOS</td>
+<td><code>brew install jq</code></td>
+</tr>
+<tr>
+<td>Ubuntu/Debian</td>
+<td><code>sudo apt-get install jq</code></td>
+</tr>
+<tr>
+<td>Windows</td>
+<td><code>choco install jq</code> (admin PowerShell) or download from <a href="https://jqlang.github.io/jq/download/">jqlang.github.io</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>GitHub CLI</strong> (needed for Lab 2) — check: <code>gh --version</code></p>
+<table>
+<thead>
+<tr>
+<th>OS</th>
+<th>Install command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>macOS</td>
+<td><code>brew install gh</code></td>
+</tr>
+<tr>
+<td>Ubuntu/Debian</td>
+<td>See <a href="https://cli.github.com/manual/installation">cli.github.com/manual/installation</a></td>
+</tr>
+<tr>
+<td>Windows</td>
+<td><code>choco install gh</code> or download from <a href="https://cli.github.com/">cli.github.com</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-install-browser-snapshot-mcp-server-for-lab-3">2. Install Browser Snapshot MCP Server (for Lab 3)</h3>
+<p>Open-source MCP server from Apra Labs — gives Claude browser screenshot capabilities. Uses Puppeteer (Chromium downloads automatically during install).</p>
+<pre><code class="language-bash">git clone https://github.com/Apra-Labs/browser-snapshot-agent.git
+cd browser-snapshot-agent
+npm install            # downloads Chromium (~200MB) — may take a few minutes
+                       # Windows: if install fails, try: npm install --legacy-peer-deps
+</code></pre>
+<p>Note the <strong>full path to <code>mcp-server.js</code></strong> — you'll need it in Lab 3:</p>
+<pre><code class="language-bash"># macOS/Linux:
+echo &quot;$(pwd)/mcp-server.js&quot;
+# Windows (Git Bash):
+echo &quot;$(pwd -W)\\mcp-server.js&quot;
+</code></pre>
+<h3 id="3-git-authentication-for-pushing-from-labs">3. Git Authentication (for pushing from labs)</h3>
+<p>Labs 4–7 commit and push code to your fork. Git needs authentication to push. The recommended approach uses <strong>short-lived tokens managed by the GitHub CLI</strong> — no long-lived tokens stored on disk.</p>
+<p><strong>If you already authenticated <code>gh</code> (next section), git push will just work.</strong> The GitHub CLI configures git to use its credential helper automatically.</p>
+<p><strong>Verify git can push</strong> (after completing step 4 below):</p>
+<pre><code class="language-bash">cd agentic-workshop-demo
+git push --dry-run
+</code></pre>
+<p>If this fails with an authentication error, run:</p>
+<pre><code class="language-bash">gh auth setup-git
+</code></pre>
+<p>This configures git to use <code>gh</code> as its credential helper — tokens are short-lived and managed by <code>gh</code>, not stored in plaintext. <strong>Do not</strong> paste personal access tokens into terminal prompts, environment variables, or config files during the workshop — that's the unsafe pattern we're teaching people to avoid.</p>
+<h3 id="4-fork-clone-the-demo-project">4. Fork &amp; Clone the Demo Project</h3>
+<p>Several labs (especially Lab 2: Skills and Lab 6: Overnight Harness) need a <strong>real GitHub repo with Actions enabled</strong>. Fork the NoteAPI demo so you have your own copy:</p>
+<p><strong>Step A: Fork on GitHub</strong></p>
+<ol>
+<li>Go to <a href="https://github.com/Apra-Labs/agentic-workshop-demo">github.com/Apra-Labs/agentic-workshop-demo</a></li>
+<li>Click <strong>Fork</strong> (top right)</li>
+<li>Keep the default settings and click <strong>Create fork</strong></li>
+</ol>
+<p><strong>Step B: Enable GitHub Actions on your fork</strong></p>
+<p>GitHub disables Actions on forks by default. Enable them:</p>
+<ol>
+<li>In your forked repo, go to <strong>Settings &gt; Actions &gt; General</strong></li>
+<li>Under "Actions permissions", select <strong>Allow all actions and reusable workflows</strong></li>
+<li>Click <strong>Save</strong></li>
+<li>Go to the <strong>Actions</strong> tab and click <strong>I understand my workflows, go ahead and enable them</strong></li>
+</ol>
+<p><strong>Step C: Clone your fork</strong></p>
+<pre><code class="language-bash"># Replace YOUR_USERNAME with your GitHub username
+git clone https://github.com/YOUR_USERNAME/agentic-workshop-demo.git
+cd agentic-workshop-demo
+</code></pre>
+<p><strong>Step D: Trigger a CI run</strong> (so Lab 2 has data to query)</p>
+<pre><code class="language-bash"># Push any trivial change to trigger the workflow
+git checkout -b feature/workshop-setup
+git commit --allow-empty -m &quot;chore: trigger CI for workshop&quot;
+git push -u origin feature/workshop-setup
+</code></pre>
+<p>Go to your fork's <strong>Actions</strong> tab — you should see a CI run in progress or completed.</p>
+<p><strong>Step E: Also clone the workshop repo</strong> (for reference)</p>
+<pre><code class="language-bash">cd ..
+# The workshop repo URL will be shared by the instructor
+git clone --recurse-submodules &lt;WORKSHOP_REPO_URL&gt;
+</code></pre>
+<h3 id="5-install-dependencies">5. Install Dependencies</h3>
+<p>In your forked <code>agentic-workshop-demo</code> directory:</p>
+<pre><code class="language-bash">cd agentic-workshop-demo
+npm install
+</code></pre>
+<p><strong>Verify everything works:</strong></p>
+<pre><code class="language-bash">npm test
+</code></pre>
+<p>Expected output: <strong>21 tests passing</strong>, 2 test suites, 0 failures.</p>
+<pre><code class="language-bash">npm run lint
+</code></pre>
+<p>Expected: clean exit, no errors.</p>
+<p><strong>Authenticate GitHub CLI</strong> (needed for Lab 2):</p>
+<pre><code class="language-bash">gh auth login
+</code></pre>
+<p>Follow the prompts to authenticate with your GitHub account.</p>
+<h3 id="6-enable-auto-memory-for-lab-1">6. Enable Auto-Memory (for Lab 1)</h3>
+<p>Auto-memory is a gradual rollout feature. Without this step, Lab 1's auto-memory demo won't work — Claude will acknowledge your "remember" requests verbally but won't persist them to disk.</p>
+<p><strong>macOS / Linux</strong> — add to your shell profile (<code>~/.bashrc</code>, <code>~/.zshrc</code>, etc.):</p>
+<pre><code class="language-bash">export CLAUDE_CODE_DISABLE_AUTO_MEMORY=0
+</code></pre>
+<p>Then restart your terminal or <code>source</code> the profile.</p>
+<p><strong>Windows</strong> — this is already included in step 7's <code>.bashrc</code> block. If you complete step 7, you're covered. If you skipped step 7 (e.g., using WSL), add the same <code>export</code> line to your shell profile.</p>
+<h3 id="7-windows-git-bash-setup-windows-only">7. Windows Git Bash Setup (Windows only)</h3>
+<p>Labs use hooks and shell scripts that require bash. On Windows, <strong>Git Bash is the recommended terminal</strong>. Run this once to fix PATH, <code>jq</code>, auto-memory, and interactive mode:</p>
+<pre><code class="language-bash">cat &gt;&gt; ~/.bashrc &lt;&lt; 'EOF'
+export PATH=&quot;$PATH:$(cygpath &quot;$APPDATA/npm&quot;)&quot;
+export PATH=&quot;$PATH:/c/ProgramData/chocolatey/bin&quot;
+export CLAUDE_CODE_DISABLE_AUTO_MEMORY=0
+alias claude=&quot;winpty claude.cmd&quot;
+EOF
+source ~/.bashrc
+</code></pre>
+<ul>
+<li>The <code>CLAUDE_CODE_DISABLE_AUTO_MEMORY=0</code> line enables auto-memory (Lab 1). Without it, Claude won't persist notes across sessions.</li>
+<li>The alias is needed because Git Bash's mintty terminal hangs on interactive programs — <code>winpty</code> bridges it. Not needed for <code>claude -p</code> (Lab 6 harness).</li>
+</ul>
+<p><strong>Verify:</strong></p>
+<pre><code class="language-bash">claude --version &amp;&amp; jq --version &amp;&amp; echo '{}' | jq '.'
+</code></pre>
+<h3 id="8-vs-code-workspace-setup-recommended">8. VS Code Workspace Setup (Recommended)</h3>
+<p>You'll spend the entire workshop in one VS Code window — project files on top, Claude in the terminal below, lab instructions on the side. No need to leave VS Code.</p>
+<p><strong>Step A: Import the workshop VS Code profile</strong></p>
+<p>The workshop includes a pre-configured VS Code profile with a light theme, large fonts, and Git Bash as the default terminal — optimized for screen sharing and readability.</p>
+<ol>
+<li>Open VS Code</li>
+<li><strong>Ctrl+Shift+P</strong> → type <strong>"Profiles: Import Profile"</strong> → select it</li>
+<li>Choose <strong>"Select File..."</strong> and open <code>advanced/vscode-workshop-profile.json</code> from the workshop repo</li>
+<li>Name the profile <strong>"Workshop"</strong> and click <strong>Create</strong></li>
+<li>VS Code switches to the new profile automatically</li>
+</ol>
+<blockquote>
+<p><strong>To switch back after the workshop:</strong> Click the gear icon (bottom-left) → <strong>Profiles</strong> → select your original profile (e.g., "Default").</p>
+</blockquote>
+<p><strong>Step B: Open the demo project in VS Code</strong></p>
+<pre><code class="language-bash">code agentic-workshop-demo
+</code></pre>
+<p>Or: File &gt; Open Folder &gt; select your <code>agentic-workshop-demo</code> directory.</p>
+<p><strong>Step C: Verify Git Bash is your default terminal</strong></p>
+<p>If you imported the workshop profile (Step A), Git Bash is already set. Open a new terminal with <strong>Ctrl+<code>** — the prompt should show</code>$<code>, not</code>PS&gt;<code>or</code>C:&gt;`. If not, click the dropdown arrow next to </strong>+<strong> in the terminal panel → </strong>Select Default Profile<strong> → </strong>Git Bash**.</p>
+<p><strong>Step D: Open lab materials for reference</strong></p>
+<p>The instructor will share <code>lab-materials.md</code> with you. Open it in VS Code:</p>
+<ol>
+<li>File &gt; Open File &gt; select <code>lab-materials.md</code></li>
+<li>Right-click the tab &gt; <strong>Open Preview</strong> (or <strong>Ctrl+Shift+V</strong>) for rendered markdown</li>
+<li>Drag the preview tab to the right side of the editor to create a split view</li>
+</ol>
+<p>Your layout should now be:</p>
+<pre><code>┌─────────────────────────┬──────────────────────┐
+│  Project files (editor) │  Lab Materials (md)  │
+│                         │                      │
+├─────────────────────────┴──────────────────────┤
+│  Git Bash terminal (Claude runs here)          │
+└────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>Step E: Verify the setup</strong></p>
+<p>In the VS Code terminal:</p>
+<pre><code class="language-bash">claude --version &amp;&amp; echo &quot;Ready for labs&quot;
+</code></pre>
+<h3 id="9-verify-claude-code">9. Verify Claude Code</h3>
+<p>In the VS Code terminal, start Claude Code:</p>
+<pre><code class="language-bash">claude
+</code></pre>
+<p>You should see Claude start up and load the project. Type <code>/exit</code> to exit. If you see CLAUDE.md being loaded in the startup output, you're good.</p>
+<hr />
+<h2 id="lab-1-the-memory-stack-in-action">Lab 1: The Memory Stack in Action</h2>
+<p><strong>Time:</strong> ~5 minutes
+<strong>What you'll learn:</strong> The 6-layer memory hierarchy — system prompt, CLAUDE.md, path-scoped rules, user memory, local memory, and auto-memory — plus the learning extraction habit.</p>
+<h3 id="the-problem">The Problem</h3>
+<p>Without persistent memory, every new Claude session rediscovers your project from scratch — the test database port, the preferred package manager, the API naming conventions. You've probably hit the same issue twice in different sessions. The memory hierarchy fixes this by giving the agent six layers of persistent knowledge, each with a different scope and purpose. The layers you control: CLAUDE.md (team, committed to git), path-scoped rules (file-pattern-specific), user memory (personal, all projects), local memory (personal + this project, gitignored), and auto-memory (Claude's own notes).</p>
+<h3 id="step-1-explore-claudemd">Step 1: Explore CLAUDE.md</h3>
+<p>Open <code>CLAUDE.md</code> in your editor.</p>
+<p><strong>What to observe:</strong>
+- It's short — build commands, code conventions, and "what NOT to do"
+- No formatting rules (that's the linter's job)
+- Every line exists because someone hit a problem without it</p>
+<h3 id="step-2-explore-path-scoped-rules">Step 2: Explore Path-Scoped Rules</h3>
+<p>Open <code>.claude/rules/api-conventions.md</code> in your editor.</p>
+<p><strong>What to observe:</strong>
+- The YAML frontmatter at the top:
+  ```yaml</p>
+<hr />
+<p>paths:
+    - "src/api/*<em>/</em>.ts"</p>
+<hr />
+<p><code>``
+- These rules **only activate** when Claude touches files matching that glob pattern
+- The rules are specific: input validation, error wrapping, HTTP status codes
+- Files outside</code>src/api/` never see these rules — zero noise</p>
+<h3 id="step-3-auto-memory-live">Step 3: Auto-Memory (Live)</h3>
+<p>Start Claude Code in your forked <code>agentic-workshop-demo</code> directory:</p>
+<pre><code class="language-bash">cd agentic-workshop-demo
+claude
+</code></pre>
+<p>Type this prompt:</p>
+<pre><code>Remember that I prefer using --verbose flag when running tests locally
+</code></pre>
+<p><strong>What to observe:</strong>
+- Claude saves a note to its auto-memory directory
+- The memory file lives at: <code>~/.claude/projects/&lt;project-hash&gt;/memory/MEMORY.md</code>
+- Next session — even after a context overflow — Claude already knows this</p>
+<p><strong>To verify:</strong> Press <strong>Ctrl+O</strong> to expand Claude's thinking. You should see a line like:</p>
+<pre><code>Wrote 1 lines to ..\..\Users\&lt;User&gt;\.claude\projects\C--akhil-agentic-workshop-demo\memory\MEMORY.md
+</code></pre>
+<p><strong>Alt+click</strong> on that path to open the memory file directly and see what Claude wrote.</p>
+<blockquote>
+<p><strong>Not seeing the write?</strong> Make sure <code>CLAUDE_CODE_DISABLE_AUTO_MEMORY=0</code> is set in your environment (setup step 6/7). Without it, Claude acknowledges "remember" requests verbally but doesn't persist them.</p>
+</blockquote>
+<p>Now try a second prompt:</p>
+<pre><code>Remember that the test database runs on port 5433, not the default 5432.
+</code></pre>
+<p>Press <strong>Ctrl+O</strong> again — you should see another write to the same <code>MEMORY.md</code>. Open it: Claude appended the new fact alongside the first one. This file persists across sessions and context overflows.</p>
+<h3 id="step-4-learning-extraction-live">Step 4: Learning Extraction (Live)</h3>
+<p>Still in Claude Code, paste this prompt:</p>
+<pre><code>We just spent time figuring out that the test DB uses port 5433. What addition to CLAUDE.local.md would have prevented this on the first try?
+</code></pre>
+<p><strong>What to observe:</strong>
+- Claude suggests a specific addition to CLAUDE.local.md (personal, gitignored — because a test DB port is a local preference, not a team convention)
+- This is the <strong>learning extraction habit</strong> — every struggle becomes a future shortcut
+- Over time, your project instructions compound: session 1 you struggle with 10 things, session 20 you struggle with 1</p>
+<h3 id="key-takeaways">Key Takeaways</h3>
+<ul>
+<li><strong>CLAUDE.md compounds over time</strong> — session 1 you struggle with 10 things, session 20 you struggle with 1. Every line you add prevents a future debugging session.</li>
+<li><strong>Path-scoped rules reduce noise</strong> — in a large codebase, loading all rules into every context wastes the agent's attention budget. Scope rules to the files they apply to.</li>
+<li><strong>Auto-memory is Claude Code only</strong> — it won't carry over if you also use Cursor or Copilot. CLAUDE.md (committed to git) is the portable layer.</li>
+<li><strong>CLAUDE.md is advisory, not enforced</strong> — the agent follows it most of the time, but it's not guaranteed. Hooks (Lab 4) add automation and catch common mistakes, but for hard enforcement, you need a sandbox or architecture controls.</li>
+<li><strong>Don't put formatting rules in CLAUDE.md</strong> — that's the linter's job. Never send an LLM to do a linter's job.</li>
+</ul>
+<h3 id="try-it-yourself">Try It Yourself</h3>
+<ul>
+<li>Ask Claude to remember something specific to your own projects</li>
+<li>Open your own project's CLAUDE.md and identify one thing that cost you debugging time but isn't documented yet</li>
+</ul>
+<h3 id="homework-study-a-real-world-memory-stack">Homework: Study a Real-World Memory Stack</h3>
+<p>Browse the CLAUDE.md and <code>.claude/</code> directory of the ApraPipes project — a real C++ video processing framework:</p>
+<p><strong><a href="https://github.com/Apra-Labs/ApraPipes/blob/main/CLAUDE.md">github.com/Apra-Labs/ApraPipes/CLAUDE.md</a></strong></p>
+<p>Also browse the <code>.claude/</code> directory — it has <code>LEARNINGS.md</code> (accumulated debugging knowledge), <code>CURRENT_STATE.md</code> (what the agent is working on), <code>commands/</code>, <code>scripts/</code>, <code>settings.json</code>, and <code>skills/</code>. Compare with the workshop demo's minimal setup — notice how a production project accumulates more layers over time.</p>
+<h3 id="thinking-exercise">Thinking Exercise</h3>
+<ol>
+<li>
+<p><strong>Layer selection:</strong> A developer discovers that <code>npm test -- --verbose</code> shows better output. Should this go in CLAUDE.md (team, committed), CLAUDE.local.md (personal, gitignored), auto-memory (agent-managed), or a path-scoped rule? What's your reasoning? Would your answer change if the whole team preferred verbose output?</p>
+</li>
+<li>
+<p><strong>CLAUDE.md growth:</strong> Over 6 months, your CLAUDE.md grows from 20 lines to 300 lines. At what point does a long CLAUDE.md start hurting the agent instead of helping? How would you decide what to prune, what to move to path-scoped rules, and what to keep?</p>
+</li>
+<li>
+<p><strong>Auto-memory trust:</strong> Auto-memory is written by the agent, not the human. What happens if the agent writes something wrong — say, it memorizes a workaround that only worked because of a temporary bug? Who reviews auto-memory, and how often?</p>
+</li>
+<li>
+<p><strong>Cross-tool portability:</strong> CLAUDE.md is Claude Code's convention. Cursor uses <code>.cursorrules</code>. Copilot uses <code>.github/copilot-instructions.md</code>. If your team uses multiple tools, how do you avoid maintaining three copies of the same instructions? Is there a single-source-of-truth approach?</p>
+</li>
+<li>
+<p><strong>The "don't" list:</strong> The demo's CLAUDE.md has a "What NOT To Do" section. Why is telling the agent what <em>not</em> to do sometimes more effective than telling it what <em>to</em> do? When does a "don't" list become counterproductive?</p>
+</li>
+</ol>
+<hr />
+<h2 id="lab-2-skills-subagents">Lab 2: Skills &amp; Subagents</h2>
+<p><strong>Time:</strong> ~5 minutes
+<strong>What you'll learn:</strong> How skills provide domain knowledge via progressive disclosure, and how subagents keep your main context clean.</p>
+<h3 id="the-problem_1">The Problem</h3>
+<p>Every time you ask the agent to do something domain-specific — watch a CI build, debug a pipeline, parse logs — it rediscovers the domain from scratch. This eats context, slows you down, and the knowledge doesn't persist between sessions. Skills solve this by packaging domain knowledge into markdown files that load on demand. And when you pair skills with subagents, the investigation happens in a separate context — your main session stays clean.</p>
+<h3 id="step-1-explore-the-skill-file">Step 1: Explore the Skill File</h3>
+<p>Open <code>.claude/skills/noteapi-devops/SKILL.md</code> in your editor.</p>
+<p><strong>What to observe:</strong>
+- The file has two sections:
+  - <strong>Name + description</strong> (top) — loaded at startup, always visible to Claude
+  - <strong>Full body</strong> (everything else) — loaded only when the skill is invoked
+- This is <strong>progressive disclosure</strong> — skills don't bloat your context until you need them
+- The skill contains: CI pipeline structure, <code>gh</code> commands, failure interpretation logic, reporting format</p>
+<h3 id="step-2-discover-available-skills-live">Step 2: Discover Available Skills (Live)</h3>
+<p>Start Claude Code in your forked <code>agentic-workshop-demo</code> directory:</p>
+<pre><code class="language-bash">cd agentic-workshop-demo
+claude
+</code></pre>
+<p>Type this prompt:</p>
+<pre><code>What custom skills do you have in this project?
+</code></pre>
+<p><strong>What to observe:</strong>
+- Claude lists the <code>noteapi-devops</code> skill — it loaded the name + description at startup
+- It knows what the skill does without loading the full body yet — that's progressive disclosure in action
+- If you had multiple skills in <code>.claude/skills/</code>, they'd all appear here</p>
+<h3 id="step-3-invoke-the-skill-via-subagent-live">Step 3: Invoke the Skill via Subagent (Live)</h3>
+<p>Before running the skill, check your current context usage:</p>
+<pre><code>/context
+</code></pre>
+<p>Note the numbers — you'll compare after the subagent returns.</p>
+<p>Now type this prompt:</p>
+<pre><code>Spin up a subagent with the noteapi-devops skill to check if the last CI pipeline passed and summarize any failures.
+</code></pre>
+<p><strong>What to observe:</strong>
+- Claude spawns a <strong>subagent</strong> — a separate context window running in the background
+- Your main context stays clean (the DevOps investigation happens in the subagent's context)
+- The result comes back as a condensed summary (1-2K tokens), not the full 20K investigation
+- Run <code>/context</code> again — your main context grew by only the summary size, not the full investigation
+- Because you forked the repo and triggered a CI run during setup, the skill has real data to query</p>
+<p><strong>If you see "no workflow runs found":</strong> Make sure you completed step 4D in the setup (push an empty commit to trigger CI) and that GitHub Actions is enabled on your fork.</p>
+<h3 id="key-takeaways_1">Key Takeaways</h3>
+<ul>
+<li><strong>If you've had the same discovery conversation 3+ times, extract it into a skill</strong> — the skill persists, the conversation doesn't.</li>
+<li><strong>Progressive disclosure saves context</strong> — only the name + description load at startup (~100 tokens); the full body loads only when invoked. No bloat until you need it.</li>
+<li><strong>Subagents keep investigations isolated</strong> — the DevOps investigation happened in its own context. Your main session didn't pay for it.</li>
+<li><strong>Skills are an open standard</strong> — the AAIF spec (agentskills.io) means the same skill file works across Claude Code, GitHub Copilot, and other tools that implement it. Write once, use everywhere.</li>
+<li><strong>Review third-party skills before installing</strong> — a skill can include shell commands. Treat them like any dependency.</li>
+</ul>
+<h3 id="try-it-yourself_1">Try It Yourself</h3>
+<ul>
+<li>Try invoking the skill after pushing a change that breaks linting or tests — see how the skill reports the failure</li>
+<li>Create a simple skill for something you rediscover every session (e.g., your project's deploy process, a complex API you use frequently)</li>
+</ul>
+<h3 id="homework-explore-a-production-grade-skill">Homework: Explore a Production-Grade Skill</h3>
+<p>The <code>noteapi-devops</code> skill you just used is intentionally simple — one file, one workflow. Real skills can be much more sophisticated. Browse this production skill used at Apra Labs for multi-platform CI/CD troubleshooting:</p>
+<p><strong><a href="https://github.com/Apra-Labs/ApraPipes/tree/main/.claude/skills/aprapipes-devops">github.com/Apra-Labs/ApraPipes/.claude/skills/aprapipes-devops</a></strong></p>
+<pre><code>.claude/skills/aprapipes-devops/
+├── SKILL.md                         ← Entry point: routing logic + quick reference
+├── methodology.md                   ← 4-phase debugging process
+├── reference.md                     ← Cross-platform operational reference (38 KB)
+├── troubleshooting.containers.md    ← Docker-specific issues
+├── troubleshooting.cuda.md          ← GPU/CUDA issues
+├── troubleshooting.jetson.md        ← ARM64 Jetson edge devices
+├── troubleshooting.linux.md         ← Linux x64 CI issues
+├── troubleshooting.macos.md         ← macOS CI issues
+├── troubleshooting.vcpkg.md         ← Package management issues
+├── troubleshooting.windows.md       ← Windows CI issues
+└── scripts/
+    ├── debug-cudnn-local.sh         ← Docker-based cuDNN debugging
+    └── test-gh-cache-delete.sh      ← Cache deletion testing
+</code></pre>
+<p><strong>What to notice:</strong>
+- <strong>SKILL.md is a router, not a manual</strong> — it contains a decision tree that maps failure types to the correct troubleshooting file. The agent loads SKILL.md first, then pulls in only the relevant sub-file. This is progressive disclosure taken further: not just "load on invoke" but "load only the slice you need."
+- <strong>The skill encodes operational wisdom, not just commands</strong> — <code>methodology.md</code> teaches a 4-phase debugging process (Detect → Validate Locally → Test in Cloud → Verify &amp; Roll Out). The critical first step: "ALWAYS compare working vs broken with <code>git diff</code> before doing anything else." This isn't tool documentation — it's how a senior engineer thinks.
+- <strong>The skill grows with every fix</strong> — the methodology includes an explicit feedback loop: after every fix, update the error pattern lookup table in SKILL.md and add a detailed entry to the relevant troubleshooting file. The skill gets smarter over time.
+- <strong>Platform-specific files prevent cross-contamination</strong> — Jetson ARM64 issues (JetPack 5.x, gcc-9.4, CUDA 11.4) live in their own file, separate from Windows issues (Python distutils, disk exhaustion). Loading Jetson troubleshooting doesn't waste context on Windows problems.</p>
+<h3 id="thinking-exercise_1">Thinking Exercise</h3>
+<p>After browsing the ApraPipes skill, consider these questions:</p>
+<ol>
+<li>
+<p><strong>Context budget:</strong> <code>reference.md</code> alone is 38 KB (~10K tokens). If every troubleshooting file loaded at once, the skill would consume ~40K tokens — nearly half a typical context window. How does the routing pattern in SKILL.md prevent this? What would happen to agent performance if you put everything in a single file instead?</p>
+</li>
+<li>
+<p><strong>Knowledge vs. instructions:</strong> <code>methodology.md</code> says "NEVER push fixes blindly to GitHub Actions — test locally first." This isn't a tool command — it's a judgment call that prevents wasted CI minutes. What other judgment calls in your own domain could be encoded as skill instructions? How would you distinguish "always do this" rules from "use your judgment" guidelines?</p>
+</li>
+<li>
+<p><strong>The feedback loop problem:</strong> The skill says "after every fix, update the skill files." In practice, who does this — the human or the agent? What happens if the agent updates the skill with a workaround that turns out to be wrong? How would you review skill updates differently from code changes?</p>
+</li>
+<li>
+<p><strong>Skill boundaries:</strong> This skill covers CI/CD debugging across 5 platforms with CUDA, vcpkg, Docker, and ARM64. Would you split it into 5 platform-specific skills instead? What are the trade-offs? (Hint: think about cross-platform issues like the Python distutils removal that affected both Windows and Linux simultaneously.)</p>
+</li>
+<li>
+<p><strong>Security surface:</strong> The skill includes shell scripts (<code>debug-cudnn-local.sh</code> launches a Docker container with <code>--gpus all</code> and mounts your working directory). If you installed a third-party skill with similar scripts, what risks would you be accepting? How does this relate to the hooks and guardrails you'll explore in Lab 4?</p>
+</li>
+</ol>
+<hr />
+<h2 id="lab-3-mcp-browser-snapshot">Lab 3: MCP — Browser Snapshot</h2>
+<p><strong>Time:</strong> ~5 minutes
+<strong>What you'll learn:</strong> How MCP extends Claude's capabilities beyond file I/O and shell commands.</p>
+<h3 id="the-problem_2">The Problem</h3>
+<p>Without MCP, your agent can read files, write code, and run shell commands — that's it. It can't see what a browser renders, query a database directly, or post to Slack. Every external interaction requires you to copy-paste results into the conversation. MCP (Model Context Protocol) is an open protocol that connects agents to external tools through a standardized interface — think of it as <strong>USB-C for AI</strong>: one protocol, any tool, any agent. In this lab, you'll give Claude the ability to capture browser screenshots — something it simply cannot do natively.</p>
+<h3 id="step-1-configure-the-mcp-server">Step 1: Configure the MCP Server</h3>
+<p>You cloned <code>browser-snapshot-agent</code> during setup (step 2). You'll need the full path to <code>mcp-server.js</code> inside that directory. If you forgot where you cloned it:</p>
+<pre><code class="language-bash"># Find it:
+find ~ -name &quot;mcp-server.js&quot; -path &quot;*/browser-snapshot-agent/*&quot; 2&gt;/dev/null
+
+# Windows (Git Bash):
+find /c/Users/$USER -name &quot;mcp-server.js&quot; -path &quot;*/browser-snapshot-agent/*&quot; 2&gt;/dev/null
+</code></pre>
+<p><strong>Where to configure: user-level vs project-level</strong></p>
+<p>Claude Code reads MCP config from two places:</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>File</th>
+<th>Scope</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>User-level</strong></td>
+<td><code>~/.claude/settings.json</code></td>
+<td>Available in <strong>every project</strong></td>
+<td>Personal tools you use everywhere (browser, Slack, DB)</td>
+</tr>
+<tr>
+<td><strong>Project-level</strong></td>
+<td><code>.claude/settings.json</code> (in repo)</td>
+<td>This project only, shared with team</td>
+<td>Project-specific tools (custom APIs, internal services)</td>
+</tr>
+</tbody>
+</table>
+<p>Browser screenshots are useful everywhere, so configure at <strong>user-level</strong> — one setup, available in every project you open:</p>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Settings file</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>macOS / Linux</td>
+<td><code>~/.claude/settings.json</code></td>
+</tr>
+<tr>
+<td>Windows</td>
+<td><code>%USERPROFILE%\.claude\settings.json</code></td>
+</tr>
+</tbody>
+</table>
+<p>Add or merge this (use the path you noted during setup step 2):</p>
+<p><strong>macOS / Linux:</strong></p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;browser-snapshot&quot;: {
+      &quot;command&quot;: &quot;node&quot;,
+      &quot;args&quot;: [&quot;/full/path/to/browser-snapshot-agent/mcp-server.js&quot;]
+    }
+  }
+}
+</code></pre>
+<p><strong>Windows:</strong></p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;browser-snapshot&quot;: {
+      &quot;command&quot;: &quot;node&quot;,
+      &quot;args&quot;: [&quot;C:\\full\\path\\to\\browser-snapshot-agent\\mcp-server.js&quot;]
+    }
+  }
+}
+</code></pre>
+<p>Replace the path with the actual output from the <code>echo</code> command in setup step 2.</p>
+<blockquote>
+<p><strong>Why user-level?</strong> If you put this in a project's <code>.claude/settings.json</code>, it only works in that project and the path must be valid for every team member. User-level config is personal — your paths, your tools, available everywhere.</p>
+</blockquote>
+<h3 id="step-2-verify-mcp-tools-are-available">Step 2: Verify MCP Tools Are Available</h3>
+<p>Start Claude Code in any directory:</p>
+<pre><code class="language-bash">claude
+</code></pre>
+<p>Type the built-in command:</p>
+<pre><code>/mcp
+</code></pre>
+<p><strong>What to observe:</strong>
+- You'll see the <code>browser-snapshot</code> server listed with its connection status
+- It shows all registered tools: <code>capture_snapshot</code>, <code>capture_multiple_viewports</code>, <code>capture_responsive_set</code>, <code>capture_from_config</code>
+- This is how you diagnose MCP issues — if a server fails to connect, <code>/mcp</code> shows the error</p>
+<blockquote>
+<p><strong><code>/mcp</code> is your MCP dashboard</strong> — use it anytime you add a new MCP server, change config, or suspect a connection issue. It shows every server, its status, and the tools it provides.</p>
+</blockquote>
+<h3 id="step-3-capture-two-screenshots-live">Step 3: Capture Two Screenshots (Live)</h3>
+<p>Type this prompt:</p>
+<pre><code>Capture a mobile screenshot of https://blub0x.com and suggest 3 important improvements
+</code></pre>
+<p><strong>What to observe:</strong>
+- Claude calls <code>capture_snapshot</code> — a tool it didn't have before MCP
+- A mobile screenshot appears in your project directory
+- Claude then <strong>reads the screenshot</strong> and gives UI/UX feedback — it's using the image as context, not just capturing it
+- One prompt triggered two capabilities: browser access (MCP) + visual analysis (multimodal)</p>
+<h3 id="what-to-notice">What to Notice:</h3>
+<ul>
+<li>Claude didn't need a browser extension, a Selenium setup, or custom code</li>
+<li>MCP gives the agent access to a browser screenshot tool the same way it accesses <code>Read</code> or <code>Bash</code> — just another tool</li>
+<li>The MCP server runs as a <strong>local process with your user's permissions</strong> — treat it like any npm package (audit before installing)</li>
+</ul>
+<h3 id="key-takeaways_2">Key Takeaways</h3>
+<ul>
+<li><strong>MCP is a protocol, not a product</strong> — the same MCP server works with Claude Code, GitHub Copilot, Cursor, and any tool that speaks MCP. You configure it once.</li>
+<li><strong>MCP servers run as local processes with your user's permissions</strong> — they are not sandboxed by default. A poorly written MCP server has the same access as any program you run locally. Audit before installing, like any npm package.</li>
+<li><strong>Not everything needs MCP</strong> — if the agent can already do it with Read/Write/Bash (file operations, shell commands), MCP adds complexity without benefit. MCP is for capabilities the agent doesn't have natively: browser access, database queries, Slack/Jira integration.</li>
+<li><strong>The tool list appeared automatically</strong> — once configured, MCP tools show up alongside built-in tools. No special syntax needed. The agent calls <code>capture_snapshot</code> the same way it calls <code>Read</code> or <code>Bash</code>.</li>
+</ul>
+<h3 id="homework">Homework</h3>
+<ul>
+<li><strong>Full responsive set:</strong> Ask Claude to <code>capture a responsive screenshot set of https://blub0x.com</code> — this captures 7 viewports (desktop, tablet, mobile) in one call</li>
+<li><strong>Style analysis:</strong> After capturing, ask Claude to <code>analyze these snapshots and suggest style improvements</code> — Claude reads the images and gives UI/UX feedback</li>
+<li><strong>Your own site:</strong> Try both on your own project's URL or local dev server</li>
+</ul>
+<hr />
+<h2 id="lab-4-hooks-that-bite">Lab 4: Hooks That Bite</h2>
+<p><strong>Time:</strong> ~5 minutes
+<strong>What you'll learn:</strong> How hooks automate quality checks and catch accidental mistakes — with a tiered approach (hard block vs. ask the user) — and why they're <em>not</em> a security boundary.</p>
+<h3 id="the-problem_3">The Problem</h3>
+<p>In the basic workshop you learned about the autonomy spectrum — from Nanny mode (approve everything) to YOLO mode (approve nothing). Most teams land somewhere in between with an <strong>allowlist</strong>: permit specific safe commands, block everything else. That works, but it's friction-heavy — you're constantly approving routine operations.</p>
+<p>Hooks come in two flavors, with very different purposes:
+- <strong>PreToolUse hooks</strong> catch common accidents — a sloppy <code>rm -rf</code>, an unintended <code>git push --force</code>. They're a safety net for mistakes, not a security boundary. An agent that wants to delete files can use <code>find . -delete</code> or a Python script — no regex will catch every alternative. For real security, you need the sandbox (Level 2) or architecture (Level 1). But PreToolUse hooks have a powerful trick: they can respond in <strong>three ways</strong> — hard block (exit 2), ask the user for confirmation (exit 0 + JSON), or allow silently (exit 0).
+- <strong>PostToolUse hooks</strong> automate quality — auto-linting after every edit, auto-running tests after changes. This is where hooks genuinely shine. They turn "remember to lint" into "linting is automatic."</p>
+<h3 id="before-you-start-create-a-lab-branch">Before You Start: Create a Lab Branch</h3>
+<p>From this lab onward, each lab gets its own git branch — <code>main</code> stays pristine as your reset point. And Claude handles the git plumbing.</p>
+<p>Start Claude Code in your forked <code>agentic-workshop-demo</code> directory with <strong>full permissions</strong>:</p>
+<pre><code class="language-bash">cd agentic-workshop-demo
+claude --dangerously-skip-permissions
+</code></pre>
+<p>Notice: no permission prompts. The agent can do anything — read, write, execute, delete. Hooks (which you're about to explore) catch common mistakes and automate quality checks — but for real security, you'd need a sandbox or architecture controls.</p>
+<p>Type:</p>
+<pre><code>Create a branch called lab4 from main and switch to it.
+</code></pre>
+<p>That just worked — no approval prompt. One sentence, no git syntax to remember. This is the speed you get with full autonomy.</p>
+<h3 id="step-1-explore-the-hooks-configuration">Step 1: Explore the Hooks Configuration</h3>
+<p>Open <code>.claude/settings.json</code> in your editor.</p>
+<p><strong>What to observe:</strong>
+- <strong><code>permissions.allow</code></strong> at the top — this is the <strong>allowlist</strong> you've been benefiting from in Labs 1-3. Commands like <code>gh</code>, <code>git</code>, <code>npm test</code> were pre-approved here so you didn't get prompted for every routine operation. This is the allowlist approach: block by default, permit what's known-safe.
+- <strong>PreToolUse hook</strong> on <code>Bash</code> matcher — runs <code>block-destructive.sh</code> before every shell command
+- <strong>PostToolUse hook</strong> on <code>Write|Edit</code> matcher — auto-runs the linter after every file edit
+- Hooks are configured per-project (in <code>.claude/settings.json</code>) or globally (in <code>~/.claude/settings.json</code>)
+- Notice the two approaches side by side: <strong>allowlist</strong> (permissions) pre-approves specific commands. <strong>Hooks</strong> add automation (post-edit linting) and catch common mistakes (accidental <code>rm -r</code>). Neither is a security boundary — for that, you need the sandbox or architecture layers from the slide.</p>
+<h3 id="step-2-read-the-hook-script">Step 2: Read the Hook Script</h3>
+<p>Open <code>.claude/hooks/block-destructive.sh</code>:</p>
+<pre><code class="language-bash">#!/bin/bash
+# PreToolUse hook: tiered response to risky commands
+# Exit 2 = hard block (irreversible, high blast radius)
+# Exit 0 + JSON &quot;ask&quot; = prompt user for confirmation (moderate risk)
+# Exit 0 (no JSON) = allow silently
+
+INPUT=$(cat)
+COMMAND=$(echo &quot;$INPUT&quot; | jq -r '.tool_input.command // empty')
+
+# Tier 1: HARD BLOCK — irreversible, high blast radius
+if echo &quot;$COMMAND&quot; | grep -qE 'git\s+push\s+--force|drop\s+table|truncate\s+table'; then
+  echo &quot;BLOCKED: Irreversible command detected: $COMMAND&quot;
+  exit 2
+fi
+
+# Tier 2: ASK USER — destructive but sometimes intentional
+if echo &quot;$COMMAND&quot; | grep -qE 'rm\s+-r'; then
+  cat &lt;&lt;HOOK_JSON
+{
+  &quot;hookSpecificOutput&quot;: {
+    &quot;hookEventName&quot;: &quot;PreToolUse&quot;,
+    &quot;permissionDecision&quot;: &quot;ask&quot;,
+    &quot;permissionDecisionReason&quot;: &quot;Recursive delete detected: $COMMAND&quot;
+  }
+}
+HOOK_JSON
+  exit 0
+fi
+
+# Everything else: allow silently
+exit 0
+</code></pre>
+<p><strong>What to observe — the tiered approach:</strong>
+- The hook reads JSON from stdin (Claude passes tool call details), extracts the command, and checks it against regex patterns.
+- <strong>Tier 1 — Hard block (exit 2):</strong> <code>git push --force</code>, <code>DROP TABLE</code>, <code>TRUNCATE TABLE</code>. The agent <strong>cannot</strong> proceed past exit code 2 — this is deterministic, not advisory. The stdout message is fed back to the agent explaining why.
+- <strong>Tier 2 — Ask the user (exit 0 + JSON):</strong> <code>rm -r</code> (recursive delete). Instead of hard-blocking, the hook returns a <code>permissionDecision: "ask"</code> JSON response. This triggers a confirmation prompt — the user can approve or deny. This handles the false-positive problem: <code>rm -r ./dist</code> (routine cleanup) gets approved; <code>rm -r /</code> (catastrophe) gets denied.
+- <strong>Tier 3 — Allow silently (exit 0, no JSON):</strong> Everything else passes through with no prompt and no delay.</p>
+<p><strong>Prerequisite check:</strong> This script requires <code>jq</code>. Verify it's installed:</p>
+<pre><code class="language-bash">jq --version
+</code></pre>
+<p>If not installed, see the setup instructions above.</p>
+<h3 id="step-3-trigger-a-hard-block-live">Step 3: Trigger a Hard Block (Live)</h3>
+<p>You're running with <code>--dangerously-skip-permissions</code> — the agent has full autonomy. Let's see if the hook still holds.</p>
+<p>Type this prompt:</p>
+<pre><code>Force push the current branch to origin main using git push --force origin main
+</code></pre>
+<p><strong>What to observe:</strong>
+- Claude attempts to run the command
+- The PreToolUse hook intercepts it <strong>before execution</strong>
+- You see: <code>BLOCKED: Irreversible command detected: git push --force origin main</code>
+- Claude receives this feedback and explains that the command was blocked
+- <strong>The command never ran.</strong> Even in full YOLO mode, exit code 2 is an absolute stop. The agent cannot override it.</p>
+<h3 id="step-4-trigger-a-confirmation-prompt-live">Step 4: Trigger a Confirmation Prompt (Live)</h3>
+<p>Now let's see the second tier — the "ask" response. Type:</p>
+<pre><code>Clean up dependencies by running rm -rf ./node_modules
+</code></pre>
+<p><strong>What to observe:</strong>
+- Claude attempts to run <code>rm -rf ./node_modules</code>
+- The PreToolUse hook catches the <code>rm -r</code> pattern — but instead of hard-blocking, it returns <code>permissionDecision: "ask"</code>
+- <strong>You see a confirmation prompt</strong> asking whether to allow or deny the recursive delete
+- You can approve (it's just node_modules, <code>npm install</code> restores it) or deny
+- This is the difference: <code>git push --force</code> is always wrong (hard block), but <code>rm -r</code> is sometimes intentional (ask the user)</p>
+<blockquote>
+<p><strong>Note:</strong> If you're running with <code>--dangerously-skip-permissions</code>, the "ask" prompt may be auto-approved (the YOLO flag auto-approves all permission dialogs). To see the confirmation dialog in action, exit Claude Code and restart without the flag: just <code>claude</code>. Then try the <code>rm -rf</code> prompt again. This teaches an important lesson: <strong>exit 2 (hard block) works in ALL modes. The "ask" pattern works when the user is in the loop.</strong></p>
+</blockquote>
+<h3 id="step-5-see-posttooluse-auto-linting-live">Step 5: See PostToolUse Auto-Linting (Live)</h3>
+<p>The PostToolUse hook runs <code>npm run lint:fix</code> after every file Write or Edit. Ask Claude:</p>
+<pre><code>Add a console.log(&quot;hello&quot;) to src/api/notes.ts at the top of the GET handler.
+</code></pre>
+<p><strong>What to observe:</strong>
+- Claude edits the file
+- Immediately after the edit, the PostToolUse hook fires and runs the linter automatically
+- The linter catches the <code>console.log</code> violation (CLAUDE.md says "No console.log in route handlers") and either fixes or flags it
+- <strong>You didn't have to ask Claude to lint. You didn't have to remember. The hook did it for you — every single time, on every file edit.</strong></p>
+<p>This is the productivity win: hooks turn "remember to lint" into "linting is automatic." Over a full day of coding, that's dozens of manual steps eliminated.</p>
+<h3 id="wrap-up">Wrap Up</h3>
+<p>In Claude Code:</p>
+<pre><code>Commit and push any changes on this branch with a descriptive message, then switch back to main.
+</code></pre>
+<p>Your Lab 4 work is preserved on the <code>lab4</code> branch. <code>main</code> is clean for the next lab. Notice: you didn't type a single git command — branching, committing, and switching all happened via natural language.</p>
+<h3 id="key-takeaways_3">Key Takeaways</h3>
+<ul>
+<li><strong>Tiered response is smarter than binary block/allow</strong> — hard block (exit 2) for irreversible commands, ask the user (exit 0 + <code>permissionDecision: "ask"</code>) for risky-but-sometimes-intentional commands, allow silently for everything else. This eliminates most false positives.</li>
+<li><strong>Exit 2 works in ALL modes</strong> — even with <code>--dangerously-skip-permissions</code>, the hard block fires. The "ask" pattern only prompts when the user is in the loop (not in YOLO mode). Choose your tier based on blast radius.</li>
+<li><strong>PreToolUse hooks catch accidents, not adversaries</strong> — they're a speed bump for common mistakes, not a security wall. The agent can read the hook script and work around the regex. For security, use the sandbox or architecture layers.</li>
+<li><strong>PostToolUse hooks are the real productivity win</strong> — auto-linting after every edit, auto-running tests, auto-formatting. These compound over a full day of coding — dozens of manual "remember to..." steps eliminated.</li>
+<li><strong>PreToolUse hooks have better uses than blocking commands</strong> — logging all commands to an audit trail, validating that file edits stay within allowed directories, injecting environment variables before execution, or adding cost tracking metadata. These add value without pretending to be a security boundary.</li>
+<li><strong>Windows caveat:</strong> Hook scripts use bash syntax. Run Claude Code from Git Bash or WSL, not PowerShell or cmd directly.</li>
+</ul>
+<h3 id="try-it-yourself_2">Try It Yourself</h3>
+<ul>
+<li>Add a third tier to the hook: commands matching <code>docker rm</code> should hard-block (exit 2), but <code>docker stop</code> should "ask"</li>
+<li>Try writing a path-aware hook: hard-block <code>rm -r</code> on <code>~</code>, <code>.git</code>, or <code>/</code> paths, but "ask" for everything else</li>
+<li>Try writing a PostToolUse hook that runs tests after every edit to <code>src/</code> files</li>
+<li>Try writing a hook that blocks commands containing sensitive paths like <code>~/.ssh</code> or <code>~/.aws</code></li>
+<li>Browse the full list of hook lifecycle events (14 total) in the reference: <strong><a href="https://docs.anthropic.com/en/docs/claude-code/hooks">claude.ai/docs/hooks</a></strong> — PreToolUse and PostToolUse are just two of them. Others include <code>Notification</code>, <code>Stop</code>, <code>SubagentStop</code>, and more.</li>
+</ul>
+<h3 id="thinking-exercise_2">Thinking Exercise</h3>
+<ol>
+<li>
+<p><strong>Hooks without YOLO mode:</strong> Imagine you didn't use <code>--dangerously-skip-permissions</code> and didn't have <code>permissions.allow</code>. Every command gets a permission prompt. What value does the PreToolUse hook still provide? (Hint: it's click #247 — the one you approve on autopilot.) What about the PostToolUse auto-lint hook — does it care about permission mode at all?</p>
+</li>
+<li>
+<p><strong>"Should I always use <code>--dangerously-skip-permissions</code>?"</strong> Someone on your team will ask this. The honest answer depends on your safety architecture. Run through this checklist before answering:</p>
+</li>
+<li>Are secrets in CI/CD (not <code>.env</code> files on disk)?</li>
+<li>Is branch protection enabled (agent can't push to main)?</li>
+<li>Do hooks block destructive patterns?</li>
+<li>Are credentials absent from the agent's machine?</li>
+<li>
+<p>Is the worst case a messy feature branch, not a production breach?
+   If all five are true, <code>--dangerously-skip-permissions</code> is reasonable — there's nothing dangerous left to skip. If any are missing, fix the gap first. The flag isn't the risk — the missing architecture is.</p>
+</li>
+<li>
+<p><strong>Adversarial bypass (this one is real):</strong> During testing, an earlier version of this hook only blocked <code>rm -rf</code>. The agent recognized the hook, and used <code>rm -r</code> (no <code>-f</code> flag) instead — same result, hook bypassed. We fixed the regex to <code>rm\s+-r</code>, but <code>find . -delete</code> or <code>shutil.rmtree()</code> in a Python script would still work. How would you design hooks that block <em>intent</em> rather than <em>syntax</em>? Is that even possible?</p>
+</li>
+<li>
+<p><strong>False positives solved by tiering:</strong> You just saw the solution — <code>rm -r</code> triggers an "ask" prompt instead of a hard block, so <code>rm -r ./dist</code> (routine cleanup) can be approved while <code>rm -r /</code> (catastrophe) gets denied. But what about YOLO mode, where "ask" is auto-approved? Design a hook that checks the <em>path</em> being deleted — hard block <code>rm -r</code> on sensitive directories (<code>/</code>, <code>~</code>, <code>.git</code>), ask for everything else. What regex or path logic would you use?</p>
+</li>
+<li>
+<p><strong>Hook as policy:</strong> Your team decides "all database migrations must be reviewed by a human." Could you implement this as a hook? What would the matcher and script look like? What are the limits of enforcing team policy through hooks vs. through CI/CD gates?</p>
+</li>
+</ol>
+<hr />
+<h2 id="lab-5-the-ralph-wiggum-loop">Lab 5: The Ralph Wiggum Loop</h2>
+<p><strong>Time:</strong> ~5 minutes
+<strong>What you'll learn:</strong> The official Ralph Wiggum plugin — bounded autonomy with a clear goal, a completion promise, and a safety limit.</p>
+<blockquote>
+<p><strong>Windows users: Use Git Bash for this lab.</strong> The Ralph Loop plugin's stop hook uses a bash script internally. On PowerShell/cmd, the hook fails due to an open Anthropic bug with Windows path resolution. Make sure you completed setup step 7 (Git Bash setup) before proceeding.</p>
+</blockquote>
+<h3 id="the-problem_4">The Problem</h3>
+<p>You have a bounded task — implement 4 TODOs in a file. You could do them one at a time, manually prompting the agent after each. But that means you're the bottleneck — you have to watch, wait, and re-prompt. What if you could give the agent a clear goal, a signal for "I'm done," and a safety limit — then walk away?</p>
+<p>The Ralph Wiggum Loop (named after the Simpsons character who enthusiastically declares "I'm helping!" while doing questionable things) adds three constraints that turn enthusiastic flailing into bounded autonomy. Without them, the agent either stops after one step or runs forever burning your API budget.</p>
+<p><strong>Five elements make it work:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>What It Does</th>
+<th>Without It</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Clear goal</strong></td>
+<td>"Implement all TODOs in notes.ts"</td>
+<td>Agent wanders, does random things</td>
+</tr>
+<tr>
+<td><strong>Binary success criteria</strong></td>
+<td>"all tests pass"</td>
+<td>Agent declares "done" when it's not</td>
+</tr>
+<tr>
+<td><strong>State externalization</strong></td>
+<td>"Update progress.md after each change"</td>
+<td>Progress lost on context overflow</td>
+</tr>
+<tr>
+<td><strong>Completion promise</strong></td>
+<td><code>&lt;promise&gt;TODOS_DONE&lt;/promise&gt;</code></td>
+<td>Can't tell if it finished or crashed</td>
+</tr>
+<tr>
+<td><strong>Max iterations</strong></td>
+<td><code>--max-iterations 20</code></td>
+<td>Burns your API budget on an unsolvable task</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-1-install-the-plugin">Step 1: Install the Plugin</h3>
+<p>The Ralph Wiggum plugin is an official Anthropic plugin for Claude Code. Install it once:</p>
+<pre><code class="language-bash">claude plugin install ralph-loop@claude-plugins-official
+</code></pre>
+<p>This adds three commands to your Claude Code session: <code>/ralph-loop:ralph-loop</code>, <code>/ralph-loop:cancel-ralph</code>, and <code>/ralph-loop:help</code>.</p>
+<p><strong>Explore the plugin:</strong> Type <code>/ralph-loop:help</code> inside Claude Code to see the full usage, options, and how the Stop hook mechanism works under the hood.</p>
+<p><strong>Want to browse other plugins?</strong> Type <code>/plugins</code> to search and explore the plugin registry. You'll see official and community plugins — each bundles skills, hooks, or MCP servers into a single installable package.</p>
+<h3 id="step-2-see-the-todos">Step 2: See the TODOs</h3>
+<p>Open <code>src/api/notes.ts</code> in your editor and look at lines 8-11:</p>
+<pre><code class="language-typescript">// TODO: Add pagination to GET /api/notes (query params: page, limit)
+// TODO: Add input length validation (title max 200 chars, content max 10000 chars)
+// TODO: Return 400 if tags array contains duplicates
+// TODO: Add updatedAt timestamp on PUT (currently not updated)
+</code></pre>
+<p>These are real, implementable TODOs — the target for the loop.</p>
+<h3 id="step-3-run-the-loop-live">Step 3: Run the Loop (Live)</h3>
+<p>Start Claude Code with full permissions — the hooks from Lab 4 are still active (catching common mistakes, auto-linting):</p>
+<pre><code class="language-bash">cd agentic-workshop-demo
+claude --dangerously-skip-permissions
+</code></pre>
+<p>First, create a branch for this lab:</p>
+<pre><code>Create a branch called lab5 from main and switch to it.
+</code></pre>
+<p>Then run the loop:</p>
+<pre><code>/ralph-loop:ralph-loop &quot;Implement all TODO items in src/api/notes.ts. After each fix, run tests. Update progress.md after each change. Output &lt;promise&gt;TODOS_DONE&lt;/promise&gt; when all TODOs are resolved and tests pass.&quot; --completion-promise &quot;TODOS_DONE&quot; --max-iterations 20
+</code></pre>
+<p><strong>What to observe:</strong>
+- Claude works on the first TODO, runs tests, updates progress.md
+- When it tries to exit, the <strong>Stop hook</strong> intercepts and feeds the same prompt back
+- Claude sees its own previous work (modified files, git history) and picks up the next TODO
+- This repeats until all TODOs are resolved and it outputs <code>TODOS_DONE</code>
+- <code>--max-iterations 20</code> is the safety net — if it can't finish, it stops after 20 loops</p>
+<p><strong>To cancel early:</strong> Type <code>/ralph-loop:cancel-ralph</code> or hit Ctrl+C.</p>
+<h3 id="step-4-check-the-trail">Step 4: Check the Trail</h3>
+<p>After the loop finishes, inspect <code>progress.md</code>.</p>
+<p><strong>What to observe:</strong>
+- The agent logged what it changed, in what order, and whether tests passed
+- You gave it autonomy. It gave you accountability. That's the deal.</p>
+<h3 id="when-it-works-vs-when-it-doesnt">When It Works vs. When It Doesn't</h3>
+<table>
+<thead>
+<tr>
+<th>Works</th>
+<th>Doesn't Work</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Well-defined tasks with clear done criteria</td>
+<td>Vague goals ("make it better")</td>
+</tr>
+<tr>
+<td>Tests exist to validate completion</td>
+<td>No automated validation — agent can't tell when it's done</td>
+</tr>
+<tr>
+<td>State tracked in files (progress.md)</td>
+<td>State only in conversation context</td>
+</tr>
+<tr>
+<td>Task fits in one context window</td>
+<td>Task requires multiple context resets (use Lab 6 instead)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-takeaways_4">Key Takeaways</h3>
+<ul>
+<li><strong>Goal + promise + limit = bounded autonomy</strong> — all three are required. Without the limit, a stuck agent burns tokens. Without the promise, you can't tell if it finished or crashed.</li>
+<li><strong>The Stop hook is the mechanism</strong> — when Claude tries to exit, the hook intercepts and feeds the same prompt back. Claude sees its own previous work and continues. This is not a conversation — it's a loop.</li>
+<li><strong><code>/ralph-loop:cancel-ralph</code> is your emergency stop</strong> — always know how to pull the plug.</li>
+<li><strong>State externalization is critical</strong> — progress.md means the trail survives even if you cancel mid-loop.</li>
+<li><strong>Ralph is for bounded tasks</strong> — if the task is bigger than one context window (context fills up before it's done), use the Overnight Harness (Lab 6) instead.</li>
+</ul>
+<h3 id="wrap-up_1">Wrap Up</h3>
+<p>In Claude Code:</p>
+<pre><code>Commit all changes, push the lab5 branch to origin, and switch back to main.
+</code></pre>
+<p>Your Ralph Wiggum work is preserved on <code>lab5</code>. <code>main</code> is clean for Lab 6 — no manual file resets needed. Check your fork's Actions tab to verify CI passes on the branch.</p>
+<h3 id="try-it-yourself_3">Try It Yourself</h3>
+<ul>
+<li>Try the loop on a file in your own project — write clear completion criteria</li>
+</ul>
+<hr />
+<h2 id="lab-6-the-overnight-harness">Lab 6: The Overnight Harness</h2>
+<p><strong>Time:</strong> ~5 minutes
+<strong>What you'll learn:</strong> How Anthropic's initializer + coding agent pattern enables agents to work across multiple context windows unattended.</p>
+<p>In Lab 5 you used the Ralph Wiggum plugin for bounded loops inside one session. But what about tasks that span <strong>multiple context windows</strong>? The overnight harness restarts Claude in a fresh context each cycle, picking up from state files.</p>
+<h3 id="before-you-start-create-a-lab-branch_1">Before You Start: Create a Lab Branch</h3>
+<p>Start Claude Code:</p>
+<pre><code class="language-bash">cd agentic-workshop-demo
+claude
+</code></pre>
+<pre><code>Create a branch called lab6 from main and switch to it.
+</code></pre>
+<p>The harness script will make commits — they should land on <code>lab6</code>, not <code>main</code>.</p>
+<p>Now use this Claude session to explore the state files in Steps 1-2, then exit before running the harness.</p>
+<h3 id="step-1-explore-planmd-and-feature_listjson-side-by-side">Step 1: Explore plan.md and feature_list.json Side by Side</h3>
+<p>Open both files in your editor:
+- <code>plan.md</code> — the human-readable plan
+- <code>feature_list.json</code> — the machine-readable checklist</p>
+<p><strong>What to observe:</strong>
+- Each phase in <code>plan.md</code> maps to an entry in <code>feature_list.json</code>
+- <code>plan.md</code> has rationale, approach, integration tests — it's for <strong>you</strong>
+- <code>feature_list.json</code> has <code>name</code>, <code>description</code>, and <code>passes: true/false</code> — it's for the <strong>agent</strong>
+- Why JSON? Markdown checkboxes (<code>[ ]</code> vs <code>[x]</code>) get corrupted when agents edit them across context windows. JSON is unambiguous.</p>
+<table>
+<thead>
+<tr>
+<th>plan.md Phase</th>
+<th>feature_list.json Entry</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 1: Tag Filtering</td>
+<td><code>{ "name": "Tag filtering endpoint", "passes": false }</code></td>
+</tr>
+<tr>
+<td>Phase 2: Full-Text Search</td>
+<td><code>{ "name": "Full-text search", "passes": false }</code></td>
+</tr>
+<tr>
+<td>Phase 3: Pagination</td>
+<td><code>{ "name": "Pagination support", "passes": false }</code></td>
+</tr>
+<tr>
+<td>Phase 4: Note Archiving</td>
+<td><code>{ "name": "Note archiving", "passes": false }</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-2-explore-agent_promptmd">Step 2: Explore AGENT_PROMPT.md</h3>
+<p>Open <code>AGENT_PROMPT.md</code> in your editor.</p>
+<p><strong>What to observe:</strong>
+- <strong>State Files section</strong> at the top — tells the agent where to find plan, checklist, and progress log
+- <strong>The Loop</strong> — a numbered sequence: read plan, find next <code>false</code> feature, implement, test, update, commit
+- <strong>The hard stop</strong> — step 7 says: "After completing one feature, output <code>SESSION_DONE</code> and stop immediately." This is critical — without it, Claude would finish all 4 features in one session and you'd never see the restart
+- <strong>Rules</strong> — "Exactly one feature per session" is the first rule. Skip after 3 failures. Never modify the prompt or plan.
+- This is the prompt that runs inside the <code>while true</code> shell loop — every fresh context window starts here</p>
+<h3 id="step-3-read-the-harness-script-then-run-it">Step 3: Read the Harness Script, Then Run It</h3>
+<p>Exit Claude Code first (<code>/exit</code>) — the harness script starts its own Claude sessions.</p>
+<p>Open <code>lab6-harness.sh</code> (or <code>lab6-harness.ps1</code> on Windows) in your editor:
+- A <code>while true</code> loop that runs <code>claude -p "$(cat AGENT_PROMPT.md)"</code> with <code>--max-turns 15</code> and <code>--dangerously-skip-permissions</code>
+- After each session, checks <code>feature_list.json</code> — exits when all features have <code>"passes": true</code>
+- Also checks for a <code>STOP</code> file — create it from another terminal to stop between sessions
+- Echo markers between cycles so you can see when one context window ends and the next begins</p>
+<p>Now run it:</p>
+<p><strong>macOS / Linux / Git Bash:</strong></p>
+<pre><code class="language-bash">bash lab6-harness.sh
+</code></pre>
+<p><strong>Windows PowerShell:</strong></p>
+<pre><code class="language-powershell">powershell -ExecutionPolicy Bypass -File lab6-harness.ps1
+</code></pre>
+<p><strong>To stop early:</strong> Ctrl+C (Git Bash/macOS/Linux) or from another terminal create a stop file: <code>touch STOP</code> (bash) / <code>New-Item STOP</code> (PowerShell). The harness checks for this file between sessions and exits cleanly.</p>
+<p><strong>What you'll see (let it run for 2 cycles, then stop it):</strong></p>
+<pre><code>========================================
+  STARTING NEW CONTEXT WINDOW
+========================================
+
+  → Claude reads plan.md, feature_list.json, progress.md
+  → Finds &quot;Tag filtering endpoint&quot; (passes: false)
+  → Implements it, runs tests, all pass
+  → Updates feature_list.json (passes: true)
+  → Updates progress.md
+  → Commits: &quot;feat: add tag filtering tests&quot;
+  → Outputs SESSION_DONE
+
+  SESSION EXITED — restarting in 3s...
+
+========================================
+  STARTING NEW CONTEXT WINDOW
+========================================
+
+  → Claude reads plan.md, feature_list.json, progress.md
+  → Skips &quot;Tag filtering&quot; (already true)
+  → Finds &quot;Full-text search&quot; (passes: false)
+  → Implements it, runs tests, all pass
+  → ...
+</code></pre>
+<p><strong>Stop the harness after the second cycle</strong> (Ctrl+C in Git Bash, close terminal in PowerShell). You've seen the pattern:
+1. Fresh context reads state files
+2. Picks up where the last session left off
+3. Completes exactly one feature
+4. Commits, updates state, exits
+5. Shell loop restarts with clean context</p>
+<p><strong>Why <code>--max-turns 15</code>?</strong> Safety net — if Claude ignores the exit instruction and keeps going, it gets capped at 15 tool calls. The prompt enforces "one feature then stop"; <code>--max-turns</code> is the backup.</p>
+<p><strong>Why <code>--dangerously-skip-permissions</code>?</strong> No permission prompts to block the loop. This is only safe when secrets live in CI/CD (not on the machine), branch protection is enabled, and the agent can only push to feature branches — not main.</p>
+<h3 id="step-4-check-the-trail_1">Step 4: Check the Trail</h3>
+<p>After stopping the loop, inspect what happened:</p>
+<pre><code class="language-bash"># What did Claude commit?
+git log --oneline -5
+
+# What features are done?
+cat feature_list.json
+
+# What did Claude write about its work?
+cat progress.md
+</code></pre>
+<p><strong>What to observe:</strong>
+- <code>feature_list.json</code> has 2 features flipped to <code>passes: true</code> (one per cycle you ran)
+- <code>progress.md</code> has two session entries with what was built, decisions made, tests passed
+- <code>git log</code> shows clean, descriptive commits — one per feature
+- <strong>This is what you'd read in the morning after an overnight run</strong></p>
+<h3 id="how-it-differs-from-lab-5-ralph-wiggum-loop">How It Differs from Lab 5 (Ralph Wiggum Loop):</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Ralph Wiggum Loop (Lab 5)</th>
+<th>Overnight Harness (this lab)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mechanism</strong></td>
+<td>Stop hook inside one session</td>
+<td>Shell loop restarts separate sessions</td>
+</tr>
+<tr>
+<td><strong>Context</strong></td>
+<td>Same session, sees its own work</td>
+<td>Fresh context each cycle</td>
+</tr>
+<tr>
+<td><strong>Duration</strong></td>
+<td>Minutes to an hour</td>
+<td>Hours to days</td>
+</tr>
+<tr>
+<td><strong>Scope</strong></td>
+<td>One bounded task</td>
+<td>Entire feature list</td>
+</tr>
+<tr>
+<td><strong>Survives context overflow</strong></td>
+<td>No — session ends</td>
+<td>Yes — that's the whole point</td>
+</tr>
+<tr>
+<td><strong>Install</strong></td>
+<td><code>claude plugin install ralph-loop@claude-plugins-official</code></td>
+<td><code>bash lab6-harness.sh</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="what-can-go-wrong">What Can Go Wrong</h3>
+<table>
+<thead>
+<tr>
+<th>Failure Mode</th>
+<th>What Happens</th>
+<th>Recovery</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent loops on a hard feature</td>
+<td>Burns context windows without progress; feature stays <code>false</code></td>
+<td>Morning review: <code>git log</code> shows repeated attempts. Rewrite the feature spec or break it smaller.</td>
+</tr>
+<tr>
+<td>Agent produces garbage code</td>
+<td>Tests fail; feature stays <code>false</code>; next context window may retry</td>
+<td><code>git revert</code> to last good commit. Git commits are checkpoints — that's by design.</td>
+</tr>
+<tr>
+<td>API budget consumed</td>
+<td>Claude returns billing errors; shell loop keeps retrying</td>
+<td>Set a budget alert in your Anthropic dashboard. <code>--max-turns</code> caps iterations per session.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cost reality:</strong> A single overnight run typically costs $5-30 per feature in API usage, depending on complexity and context window resets. The C compiler case study (Anthropic blog) cost ~$20K across 2,000 sessions — far beyond a typical overnight run. Set budget alerts before running unattended.</p>
+<h3 id="key-takeaways_5">Key Takeaways</h3>
+<ul>
+<li><strong>State files are the contract</strong> — plan.md for humans, feature_list.json for the agent, progress.md for accountability. Without them, each restart is blind.</li>
+<li><strong>One feature per session is deliberate</strong> — it ensures clean restarts and prevents context exhaustion. Without the "exactly one, then stop" rule, the agent would do everything in one session and you'd never see the restart pattern.</li>
+<li><strong>Git commits are your safety net</strong> — if a session produces bad code, <code>git revert</code> gets you back. The harness is designed for this.</li>
+<li><strong><code>--dangerously-skip-permissions</code> requires safety architecture first</strong> — this flag is only safe when secrets are out of the agent's reach, branch protection is on, and CI gates are in place.</li>
+<li><strong>This pattern scales</strong> — the same architecture works for 4 features overnight or 100 features over a week. It's the same loop.</li>
+</ul>
+<h3 id="wrap-up_2">Wrap Up</h3>
+<p>After the harness stops (either all features done, Ctrl+C, or STOP file), it has already committed as it went. Start Claude Code:</p>
+<pre><code class="language-bash">claude
+</code></pre>
+<p>Review what the harness accomplished:</p>
+<pre><code>Show me the git log for this branch and summarize what was built.
+</code></pre>
+<p>Push and return to main:</p>
+<pre><code>Push the lab6 branch to origin, then switch back to main.
+</code></pre>
+<p>Check your fork's Actions tab to verify CI passes. Your overnight harness work is preserved on <code>lab6</code>.</p>
+<h3 id="want-to-try-again">Want to Try Again?</h3>
+<p>In Claude Code:</p>
+<pre><code>Switch to main, delete the lab6 branch, and create a fresh lab6 branch from main.
+</code></pre>
+<h3 id="homework_1">Homework</h3>
+<ul>
+<li>Let the loop run through all 4 features (takes ~5-10 min, costs a few dollars in API credits)</li>
+<li>Verify CI passes on the pushed branch</li>
+<li>For your own projects: create a <code>plan.md</code> and <code>feature_list.json</code> following the same structure</li>
+</ul>
+<h3 id="thinking-exercise_3">Thinking Exercise</h3>
+<ol>
+<li>
+<p><strong>Morning review:</strong> You wake up to 4 features implemented overnight. <code>git log</code> shows 4 clean commits, tests pass, <code>progress.md</code> has detailed notes. How do you review 4 sessions' worth of agent work efficiently? What's your "morning checklist" to decide if the code is production-ready?</p>
+</li>
+<li>
+<p><strong>Feature sizing:</strong> "Add user authentication with OAuth, JWT tokens, and role-based access" is too big for one context window. "Fix a typo in a comment" is too small to justify harness overhead. How do you size features for the harness? What heuristics would you use?</p>
+</li>
+<li>
+<p><strong>Failure cascades:</strong> Feature 2 depends on Feature 1's implementation. If the agent implemented Feature 1 with a subtle design flaw, Feature 2 builds on the wrong foundation. By morning, you have 4 features built on a bad premise. How would you detect this? Could the harness architecture prevent it?</p>
+</li>
+<li>
+<p><strong>JSON vs. Markdown for state:</strong> The harness uses JSON for the feature checklist because markdown checkboxes (<code>[ ]</code> vs <code>[x]</code>) get corrupted when agents edit them across context windows. What other state formats have you seen LLMs struggle with? What makes JSON more reliable for agent-written state?</p>
+</li>
+</ol>
+<hr />
+<h2 id="lab-7-subagents-in-parallel">Lab 7: Subagents in Parallel</h2>
+<p><strong>Time:</strong> ~5 minutes
+<strong>What you'll learn:</strong> How to use subagents for parallel investigations without bloating your main context.</p>
+<h3 id="the-problem_5">The Problem</h3>
+<p>When you need multiple things investigated simultaneously — a security review, a test coverage check, a TODO audit — doing them sequentially in your main context means each investigation's tokens crowd out the next. By the time you finish the third investigation, your context is bloated and the agent has forgotten details from the first. Subagents solve this by giving each investigation its own context window. Only the condensed summaries come back to the parent — not the full investigation.</p>
+<h3 id="before-you-start-create-a-lab-branch_2">Before You Start: Create a Lab Branch</h3>
+<p>Start Claude Code with full permissions — by now you've seen hooks protect you in Labs 4-6:</p>
+<pre><code class="language-bash">cd agentic-workshop-demo
+claude --dangerously-skip-permissions
+</code></pre>
+<pre><code>Create a branch called lab7 from main and switch to it.
+</code></pre>
+<h3 id="step-1-run-three-parallel-investigations-live">Step 1: Run Three Parallel Investigations (Live)</h3>
+<p>Check your starting context usage:</p>
+<pre><code>/context
+</code></pre>
+<p>Note the numbers. Now type this prompt:</p>
+<pre><code>I need three things done in parallel:
+1. Review src/api/notes.ts for security issues
+2. Check if our test coverage is above 80%
+3. Search for any TODO comments across the codebase
+Use subagents for each.
+</code></pre>
+<p><strong>What to observe:</strong>
+- Claude spawns <strong>three subagents</strong>, each with its own context window
+- Each subagent works independently on its assigned task
+- Results come back as condensed summaries</p>
+<h3 id="step-2-measure-the-context-impact">Step 2: Measure the Context Impact</h3>
+<p>When the subagents return, run <code>/context</code> again.</p>
+<p><strong>What to observe:</strong>
+- Three investigations just happened — security review, coverage check, TODO search — each involving multiple file reads and tool calls
+- Your main context grew by only the summaries (~3-5K tokens total), not the full investigations
+- If you'd done all three sequentially in the main context, you'd have consumed 10-20x more context
+- This is the <strong>Isolate</strong> strategy in action — splitting work across separate contexts to prevent context bloat</p>
+<h3 id="key-takeaways_6">Key Takeaways</h3>
+<ul>
+<li><strong>Subagents are the simplest form of parallelism</strong> — within one session, no coordination overhead, results come back automatically as condensed summaries.</li>
+<li><strong>Three levels of agent parallelism exist:</strong> (1) Subagents within one session (this lab), (2) Agent Teams coordinating across sessions with shared task lists and messaging, (3) Independent agents on separate machines with git as the synchronization mechanism. Start with subagents.</li>
+<li><strong>Don't over-parallelize</strong> — subagents have overhead (spawning time, API cost per context). For a quick grep or a single-file check, just ask the main agent directly. Reserve subagents for investigations that would bloat your context: multi-file reads, cross-cutting concerns, or multi-step analysis.</li>
+<li><strong>There's no documented hard limit on concurrent subagents</strong> — community testing shows ~10 running concurrently before Claude starts queuing the rest. The real constraint is your machine's RAM and CPU.</li>
+<li><strong>This is the Isolate strategy in action</strong> — one of four context engineering strategies (Write, Select, Compress, Isolate). You'll use all four as you scale.</li>
+</ul>
+<h3 id="wrap-up_3">Wrap Up</h3>
+<p>In Claude Code:</p>
+<pre><code>Commit and push any changes on this branch with a descriptive message, then switch back to main.
+</code></pre>
+<h3 id="try-it-yourself_4">Try It Yourself</h3>
+<ul>
+<li>Ask Claude to run 2-3 parallel investigations on your own project</li>
+<li>Try mixing investigation types: one for code review, one for test gaps, one for documentation coverage</li>
+<li>Notice how the main context stays clean even after multiple subagent returns</li>
+</ul>
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="jq-command-not-found-lab-4">"jq: command not found" (Lab 4)</h3>
+<p>The hook script needs <code>jq</code> to parse JSON input. See the installation instructions in Prerequisites. Without <code>jq</code>, the hook silently fails to block commands.</p>
+<h3 id="tests-fail-with-jest-is-not-recognized-any-lab">Tests fail with "'jest' is not recognized" (Any lab)</h3>
+<p>Run <code>npm install</code> in the <code>agentic-workshop-demo</code> directory. The clone doesn't include <code>node_modules/</code>.</p>
+<h3 id="auto-memory-directory-is-empty-lab-1">Auto-memory directory is empty (Lab 1)</h3>
+<p><strong>Symptom:</strong> Claude says "Got it, noted" but no <code>memory/</code> directory appears under <code>~/.claude/projects/</code>. Auto-memory is a gradual rollout — you must opt in. Set the environment variable and restart your terminal:</p>
+<pre><code class="language-bash"># macOS/Linux — add to ~/.bashrc or ~/.zshrc
+export CLAUDE_CODE_DISABLE_AUTO_MEMORY=0
+
+# Windows/Git Bash — already in step 7's .bashrc block. Verify with:
+echo $CLAUDE_CODE_DISABLE_AUTO_MEMORY   # should print 0
+</code></pre>
+<h3 id="mcp-tools-not-showing-up-lab-3">MCP tools not showing up (Lab 3)</h3>
+<ul>
+<li>Restart Claude Code after changing <code>settings.json</code></li>
+<li>Verify the path points to the actual <code>mcp-server.js</code> file: <code>node /path/to/browser-snapshot-agent/mcp-server.js</code> should start without errors (Ctrl+C to stop)</li>
+<li>On Windows, use double backslashes in the JSON path: <code>"C:\\Users\\...\\mcp-server.js"</code></li>
+<li>If Puppeteer/Chromium failed to install, re-run <code>npm install</code> in the <code>browser-snapshot-agent</code> directory (Windows: try <code>npm install --legacy-peer-deps</code>)</li>
+</ul>
+<h3 id="spin-up-a-subagent-doesnt-work-labs-2-7">"Spin up a subagent" doesn't work (Labs 2, 7)</h3>
+<p>Subagent support requires a recent version of Claude Code. Run:</p>
+<pre><code class="language-bash">npm update -g @anthropic-ai/claude-code
+</code></pre>
+<h3 id="hook-doesnt-block-on-windows-lab-4">Hook doesn't block on Windows (Lab 4)</h3>
+<ul>
+<li>The hook script uses bash syntax. Make sure you're running Claude Code from <strong>Git Bash</strong> or <strong>WSL</strong>, not from PowerShell or cmd directly.</li>
+<li>Verify <code>jq</code> is accessible from your Git Bash <code>PATH</code>.</li>
+</ul>
+<h3 id="claude-says-no-workflow-runs-found-lab-2">Claude says "no workflow runs found" (Lab 2)</h3>
+<p>Make sure you completed the setup steps: (1) forked the repo, (2) enabled Actions in Settings &gt; Actions &gt; General, (3) pushed a commit to trigger a CI run. Check your fork's Actions tab to confirm at least one run exists.</p>
+<h3 id="-max-turns-unknown-option-lab-6">"--max-turns: unknown option" (Lab 6)</h3>
+<p>Update Claude Code to the latest version:</p>
+<pre><code class="language-bash">npm update -g @anthropic-ai/claude-code
+</code></pre>
+<hr />
+<h2 id="quick-reference-files-used-per-lab">Quick Reference: Files Used Per Lab</h2>
+<table>
+<thead>
+<tr>
+<th>Lab</th>
+<th>Files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lab 1: Memory Stack</td>
+<td><code>CLAUDE.md</code>, <code>.claude/rules/api-conventions.md</code></td>
+</tr>
+<tr>
+<td>Lab 2: Skills</td>
+<td><code>.claude/skills/noteapi-devops/SKILL.md</code></td>
+</tr>
+<tr>
+<td>Lab 3: MCP</td>
+<td><code>.claude/settings.json</code> (mcpServers section)</td>
+</tr>
+<tr>
+<td>Lab 4: Hooks</td>
+<td><code>.claude/settings.json</code> (hooks section), <code>.claude/hooks/block-destructive.sh</code></td>
+</tr>
+<tr>
+<td>Lab 5: Ralph Wiggum Loop</td>
+<td><code>src/api/notes.ts</code> (TODOs), <code>progress.md</code></td>
+</tr>
+<tr>
+<td>Lab 6: Overnight Harness</td>
+<td><code>plan.md</code>, <code>feature_list.json</code>, <code>AGENT_PROMPT.md</code>, <code>progress.md</code>, <code>lab6-harness.sh</code></td>
+</tr>
+<tr>
+<td>Lab 7: Subagents</td>
+<td><code>src/api/notes.ts</code>, <code>tests/</code></td>
+</tr>
+</tbody>
+</table>
+<p>All files are in your forked <code>agentic-workshop-demo/</code> directory.</p>
+</body>
+</html>

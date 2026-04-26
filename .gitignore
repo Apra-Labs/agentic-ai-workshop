@@ -1,0 +1,18 @@
+# Internal working documents — not for public repo
+*/backing-docs/
+advanced/presentation/
+basic2/
+
+# Internal files
+advanced/create-feedback-form.gs
+advanced/agentic-ai-workshop-advanced.md
+advanced/pre-workshop-setup.css
+advanced/pre-workshop-setup.pdf
+
+# OS / Drive artifacts
+desktop.ini
+Thumbs.db
+*.gform
+*.gsheet
+*.gdoc
+.DS_Store
